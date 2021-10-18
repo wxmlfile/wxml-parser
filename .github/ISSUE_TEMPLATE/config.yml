@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: ✨ Feature Request / idea
-    url: https://github.com/wxmlfile/wxml-parser/issues/new/choose
+    url: https://github.com/wxmlfile/wxml-parser/discussions
     about: Missing something in @wxml/parser? Let us know.
   - name: 💬 Question / Discussion
-    url: https://github.com/wxmlfile/wxml-parser/issues/new/choose
+    url: https://github.com/wxmlfile/wxml-parser/discussions
     about: Feel free to ask anything
   - name: 📖 View wxml documentation
     url: https://developers.weixin.qq.com/miniprogram/dev/reference/wxml
