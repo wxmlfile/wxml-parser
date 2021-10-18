@@ -44,14 +44,13 @@ FRAGMENT("Name", makePattern`${f.NameStartChar}(${f.NameChar})*`);
 const WXS_START = createToken({
   name: "WXS_START",
   pattern: /<wxs/,
-  push_mode: "INSIDE"
+  push_mode: "INSIDE",
 });
-
 
 const COMMENT = createToken({
   name: "COMMENT",
   pattern: /<!--(.|\r?\n)*?-->/,
-  line_breaks: true
+  line_breaks: true,
 });
 
 /**
@@ -86,7 +85,11 @@ const INVALID_OPEN_INSIDE = createToken({
 
 const TEXT = createToken({ name: "TEXT", pattern: /[^<]+/ });
 
-const WXS_TEXT = createToken({ name: "WXS_TEXT", pattern: /[^]+?(?=<\/wxs>)/, line_breaks: true });
+const WXS_TEXT = createToken({
+  name: "WXS_TEXT",
+  pattern: /[^]+?(?=<\/wxs>)/,
+  line_breaks: true,
+});
 
 const CLOSE = createToken({ name: "CLOSE", pattern: />/, pop_mode: true });
 
@@ -117,15 +120,7 @@ const wxmlLexerDefinition = {
   defaultMode: "OUTSIDE",
 
   modes: {
-    OUTSIDE: [
-      WXS_START,
-      COMMENT,
-      SEA_WS,
-      SLASH_OPEN,
-      OPEN,
-      WXS_TEXT,
-      TEXT,
-    ],
+    OUTSIDE: [WXS_START, COMMENT, SEA_WS, SLASH_OPEN, OPEN, WXS_TEXT, TEXT],
     INSIDE: [
       // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,

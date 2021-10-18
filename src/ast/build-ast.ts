@@ -1,11 +1,6 @@
 import type { CstNodeLocation, CstNode, IToken } from "chevrotain";
-import {
-  map,
-  get,
-  pick,
-  sortBy
-} from "lodash";
-import { BaseWxmlCstVisitor }  from "../cst";
+import { map, get, pick, sortBy } from "lodash";
+import { BaseWxmlCstVisitor } from "../cst";
 import { mergeLocation, sortCstChildren, parseInlineJS } from "./util";
 
 type ICtx = Record<string, CstNode[]>;
@@ -36,13 +31,10 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     // build root node
     const astNode = {
       type: "Program",
-      body: child.map(node => this.visit(node)),
+      body: child.map((node) => this.visit(node)),
       comments: [],
-      errors: [
-        ...(lexErrors || []),
-        ...(parseErrors || [])
-      ],
-      tokens: []
+      errors: [...(lexErrors || []), ...(parseErrors || [])],
+      tokens: [],
     };
     mergeLocation(astNode, location);
     return astNode;
@@ -57,39 +49,48 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       type: "WXScript",
       value: null,
       startTag: null,
-      endTag: null
+      endTag: null,
     };
 
     if (ctx.WXS_START?.[0] && (ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0])) {
       const startTagLocation = {
-        ...pick(ctx.WXS_START?.[0], ['startOffset', 'startLine', 'startColumn']),
-        ...pick(ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0], ['endOffset', 'endLine', 'endColumn'])
-      }
+        ...pick(ctx.WXS_START?.[0], [
+          "startOffset",
+          "startLine",
+          "startColumn",
+        ]),
+        ...pick(ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0], [
+          "endOffset",
+          "endLine",
+          "endColumn",
+        ]),
+      };
       astNode.startTag = {
         type: "WXStartTag",
-        attributes: ctx.attribute ? map(ctx.attribute, this.visit.bind(this)) : [],
-        selfClosing: !!ctx.SLASH_CLOSE
-      }
+        attributes: ctx.attribute
+          ? map(ctx.attribute, this.visit.bind(this))
+          : [],
+        selfClosing: !!ctx.SLASH_CLOSE,
+      };
       mergeLocation(astNode.startTag, startTagLocation);
     }
 
     if (ctx.SLASH_OPEN?.[0] && ctx.END?.[0]) {
-      astNode.endTag =  {
+      astNode.endTag = {
         type: "WXEndTag",
-        name: get(ctx, 'END_NAME[0].image')
-      }
+        name: get(ctx, "END_NAME[0].image"),
+      };
       const endTagLocation = {
-        ...pick(ctx.SLASH_OPEN[0], ['startOffset', 'startLine', 'startColumn']),
-        ...pick(ctx.END[0], ['endOffset', 'endLine', 'endColumn'])
-      }
+        ...pick(ctx.SLASH_OPEN[0], ["startOffset", "startLine", "startColumn"]),
+        ...pick(ctx.END[0], ["endOffset", "endLine", "endColumn"]),
+      };
       mergeLocation(astNode.endTag, endTagLocation);
     }
-
 
     mergeLocation(astNode, location);
     // gen wxs content
     if (ctx.wxscontent?.[0]) {
-      astNode.value = this.visit.bind(this)(ctx.wxscontent?.[0])
+      astNode.value = this.visit.bind(this)(ctx.wxscontent?.[0]);
       if (this.eslintMode) {
         parseInlineJS(astNode);
       }
@@ -120,23 +121,25 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     const astNode = {
       type: "WXAttribute",
       key: ctx.NAME[0].image,
-      value: ctx?.STRING?.[0]?.image || null
+      value: ctx?.STRING?.[0]?.image || null,
     };
     mergeLocation(astNode, location);
     return astNode;
   }
 
-  content (ctx) {
+  content(ctx) {
     // sort child node first
     const child = sortCstChildren(ctx);
-    return child.map(node => this.visit(node))
+    return child.map((node) => this.visit(node));
   }
 
-  comment (ctx, { location }) {
+  comment(ctx, { location }) {
     const astNode = {
       type: "WXComment",
-      value: (ctx.COMMENT[0].image || '').replace(/^<!--/, '').replace(/-->$/, '')
-    }
+      value: (ctx.COMMENT[0].image || "")
+        .replace(/^<!--/, "")
+        .replace(/-->$/, ""),
+    };
     mergeLocation(astNode, location);
     return astNode;
   }
@@ -147,30 +150,36 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       name: ctx.NAME[0].image,
       children: [],
       startTag: null,
-      endTag: null
+      endTag: null,
     };
     if (ctx.OPEN?.[0] && (ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0])) {
       astNode.startTag = {
         type: "WXStartTag",
-        attributes: ctx.attribute ? map(ctx.attribute, this.visit.bind(this)) : [],
-        selfClosing: !!ctx.SLASH_CLOSE
-      }
+        attributes: ctx.attribute
+          ? map(ctx.attribute, this.visit.bind(this))
+          : [],
+        selfClosing: !!ctx.SLASH_CLOSE,
+      };
       const startTagLocation = {
-        ...pick(ctx.OPEN?.[0], ['startOffset', 'startLine', 'startColumn']),
-        ...pick(ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0], ['endOffset', 'endLine', 'endColumn'])
-      }
+        ...pick(ctx.OPEN?.[0], ["startOffset", "startLine", "startColumn"]),
+        ...pick(ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0], [
+          "endOffset",
+          "endLine",
+          "endColumn",
+        ]),
+      };
       mergeLocation(astNode.startTag, startTagLocation);
     }
 
     if (ctx.SLASH_OPEN?.[0] && ctx.END?.[0]) {
       astNode.endTag = {
         type: "WXEndTag",
-        name: get(ctx, 'END_NAME[0].image')
+        name: get(ctx, "END_NAME[0].image"),
       };
       const endTagLocation = {
-        ...pick(ctx.SLASH_OPEN[0], ['startOffset', 'startLine', 'startColumn']),
-        ...pick(ctx.END[0], ['endOffset', 'endLine', 'endColumn'])
-      }
+        ...pick(ctx.SLASH_OPEN[0], ["startOffset", "startLine", "startColumn"]),
+        ...pick(ctx.END[0], ["endOffset", "endLine", "endColumn"]),
+      };
       mergeLocation(astNode.endTag, endTagLocation);
     }
 
@@ -184,7 +193,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
   chardata(ctx, { location }) {
     const astNode = {
       type: "WXText",
-      value: null
+      value: null,
     };
 
     let allTokens = [];
@@ -204,7 +213,13 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
 
 const AstBuilder = new CstToAstVisitor();
 
-export function buildAst(docCst, tokenVector, lexErrors, parseErrors, eslintMode?: boolean) {
+export function buildAst(
+  docCst,
+  tokenVector,
+  lexErrors,
+  parseErrors,
+  eslintMode?: boolean
+) {
   AstBuilder.setState({ tokenVector, eslintMode });
   const wxmlDocAst = AstBuilder.visit(docCst, { lexErrors, parseErrors });
   return wxmlDocAst;

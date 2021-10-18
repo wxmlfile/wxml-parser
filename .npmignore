@@ -6,3 +6,6 @@ dist
 .husky/
 .idea/
 .vscode/
+
+.eslintignore
+.eslintrc.js

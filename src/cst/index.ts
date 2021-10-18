@@ -14,6 +14,6 @@ export const parse = (text) => {
     lexErrors: lexResult.errors,
     parseErrors: wxmlParser.errors,
   };
-}
+};
 
-export const BaseWxmlCstVisitor = wxmlParser.getBaseCstVisitorConstructor()
+export const BaseWxmlCstVisitor = wxmlParser.getBaseCstVisitorConstructor();

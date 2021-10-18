@@ -26,10 +26,10 @@ import { parse } from "./cst";
 // </page>
 // <template name="img">
 //   <text>
-  
+
 //   你好 {{name}} </text>
 //   <!-- yunlei comment -->
-//   <view class="thumbWrapper"> 
+//   <view class="thumbWrapper">
 //     <img
 //     src="{{item.imageUrl}}"
 //     width="450"
@@ -45,10 +45,10 @@ import { parse } from "./cst";
 //       multi line comment
 //   -->
 // </template>
-// zhizhiz  
+// zhizhiz
 // `);
 
-const { cst, tokenVector,  lexErrors, parseErrors } = parse(`
+const { cst, tokenVector, lexErrors, parseErrors } = parse(`
 <wxs module="ss">var stylesToStr = require("./style.wxs").stylesToStr;
 var allStylesToStr = require("./style.wxs").allStylesToStr;
 let x = 34;
@@ -92,8 +92,8 @@ module.exports = {
   />
 </view>
 </template>
-`)
+`);
 
-const ast = buildAst(cst, tokenVector,  lexErrors, parseErrors);
+const ast = buildAst(cst, tokenVector, lexErrors, parseErrors);
 
 ast;

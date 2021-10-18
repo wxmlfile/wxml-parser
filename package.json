@@ -1,13 +1,14 @@
 {
   "name": "@wxml/parser",
   "version": "0.1.0",
-  "description": "Fast wxml parser",
+  "description": "A fast and tolerant wxml parser",
   "type": "commonjs",
   "main": "lib/index.js",
   "scripts": {
     "prebuild": "rm -rf ./dist && rm -rf ./lib",
     "build": "tsc && rollup -c",
     "postbuild": "rm -rf ./dist",
+    "format": "prettier  \"./src\" --write ",
     "test": "mocha tests/ --require chai --bail --check-leaks"
   },
   "keywords": [
@@ -32,6 +33,7 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "mocha": "^9.1.3",
+    "prettier": "^2.4.1",
     "rollup": "^2.58.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.3"
