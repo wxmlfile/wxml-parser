@@ -4,13 +4,6 @@
   "description": "A fast and tolerant wxml parser",
   "type": "commonjs",
   "main": "lib/index.js",
-  "scripts": {
-    "prebuild": "rm -rf ./dist && rm -rf ./lib",
-    "build": "tsc && rollup -c",
-    "postbuild": "rm -rf ./dist",
-    "format": "prettier  \"./src\" --write ",
-    "test": "mocha tests/ --require chai --bail --check-leaks"
-  },
   "keywords": [
     "wxml",
     "parser",
@@ -20,6 +13,14 @@
   ],
   "author": "iChenLei <chenleicoder@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "prepare": "husky install",
+    "prebuild": "rm -rf ./dist && rm -rf ./lib",
+    "build": "tsc && rollup -c",
+    "postbuild": "rm -rf ./dist",
+    "format": "prettier  \"./src\" --write ",
+    "test": "mocha tests/ --require chai --bail --check-leaks"
+  },
   "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.5",
@@ -30,6 +31,7 @@
     "chai": "^4.3.4",
     "chevrotain": "^9.0.2",
     "espree": "^9.0.0",
+    "husky": "^7.0.2",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "mocha": "^9.1.3",
