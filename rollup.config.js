@@ -9,7 +9,7 @@ export default {
     name: 'wxmlParser',
     file: 'lib/index.js',
     format: 'umd',
-    sourcemap: true
+    sourcemap: false
   },
   plugins: [
     alias({
@@ -19,6 +19,6 @@ export default {
     }),
     resolve(),
     commonjs(),
-    typescript()
+    typescript({ sourceMap: false })
   ]
 };

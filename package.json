@@ -19,6 +19,7 @@
     "build": "tsc && rollup -c",
     "postbuild": "rm -rf ./dist",
     "format": "prettier  \"./src\" --write ",
+    "pretest": "npm run build",
     "test": "mocha tests/ --require chai --bail --check-leaks"
   },
   "dependencies": {},

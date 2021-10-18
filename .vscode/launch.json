@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug wxml-parser",
-      "program": "${workspaceFolder}/src/test.ts",
+      "program": "${workspaceFolder}/src/vscodedebug/test.ts",
       "preLaunchTask": "tsc: build - tsconfig.cjs.json",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }

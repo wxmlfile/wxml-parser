@@ -1,7 +1,13 @@
-import type { CstNodeLocation, CstNode, IToken } from "chevrotain";
+import type { CstNode, IToken } from "chevrotain";
 import { map, get, pick, sortBy } from "lodash";
 import { BaseWxmlCstVisitor } from "../cst";
-import { mergeLocation, sortCstChildren, parseInlineJS } from "./util";
+import {
+  mergeLocation,
+  sortCstChildren,
+  parseInlineJS,
+  convertLexerErrorToNode,
+  convertParseErrorToNode,
+} from "./util";
 
 type ICtx = Record<string, CstNode[]>;
 
@@ -33,7 +39,10 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       type: "Program",
       body: child.map((node) => this.visit(node)),
       comments: [],
-      errors: [...(lexErrors || []), ...(parseErrors || [])],
+      errors: [
+        ...(lexErrors || []).map(convertLexerErrorToNode),
+        ...(parseErrors || []).map(convertParseErrorToNode),
+      ],
       tokens: [],
     };
     mergeLocation(astNode, location);

@@ -1,4 +1,9 @@
-import type { CstNode, CstNodeLocation } from "chevrotain";
+import type {
+  CstNode,
+  CstNodeLocation,
+  IRecognitionException,
+  ILexingError,
+} from "chevrotain";
 
 interface IEspreeError {
   column: number;
@@ -122,4 +127,50 @@ export function parseInlineJS(astNode): void {
   } else {
     // require local espress fail, do nothing
   }
+}
+
+/**
+ * transpile Lexer error to eslint node
+ */
+export function convertLexerErrorToNode(error: ILexingError) {
+  return {
+    type: "WXLexerError",
+    value: error.message,
+    start: error.offset,
+    end: error.offset + error.length,
+    loc: {
+      start: {
+        line: error.line,
+        column: error.column,
+      },
+      end: {
+        line: error.line,
+        column: error.column,
+      },
+    },
+    range: [error.offset, error.length],
+  };
+}
+
+/**
+ * transpile Parse error to eslint node
+ */
+export function convertParseErrorToNode(error: IRecognitionException) {
+  return {
+    type: "WXParseError",
+    value: error.message,
+    start: error.token.startOffset,
+    end: error.token.endOffset,
+    loc: {
+      start: {
+        line: error.token.startLine,
+        column: error.token.startColumn,
+      },
+      end: {
+        line: error.token.endLine,
+        column: error.token.endColumn,
+      },
+    },
+    range: [error.token.startOffset, error.token.endOffset],
+  };
 }
