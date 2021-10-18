@@ -1,0 +1,11 @@
+<pin>
+
+  <wxs> /* js with same line */ function compare (a, b) {
+      return a > b;
+    }
+    module.exports = {
+      compare: compare
+    }
+  </wxs>
+  <voip-room ></voip-room>
+</pin>

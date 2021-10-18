@@ -1,0 +1,7 @@
+<page-observer />
+<wxs module="test">var s = "xx";
+  module.exports = {
+    data: s
+  }
+</wxs>
+This is plain text

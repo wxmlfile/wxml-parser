@@ -85,7 +85,14 @@ export function parseInlineJS(astNode): void {
    */
   if (espreeParser) {
     try {
-      const espreeAst = espreeParser.parse(astNode.value, {
+      // add empty string to js source for correct position
+      const wxsOffset = astNode.startTag
+        ? astNode.startTag.loc.end
+        : astNode.loc.start;
+      const appendStr =
+        "\n".repeat(wxsOffset.line - 1) + " ".repeat(wxsOffset.column);
+
+      const espreeAst = espreeParser.parse(appendStr + astNode.value, {
         loc: true,
         range: true,
         comment: true,
@@ -97,9 +104,6 @@ export function parseInlineJS(astNode): void {
     } catch (e) {
       // IEspreeError
       const error = e as IEspreeError;
-      const errorOffset = astNode.startTag
-        ? astNode.startTag.loc.end
-        : astNode.loc.start;
       astNode.error = {
         type: "WXScriptError",
         value: error.message,
@@ -107,18 +111,12 @@ export function parseInlineJS(astNode): void {
         end: astNode.end,
         loc: {
           start: {
-            line: errorOffset.line + error.lineNumber - 1,
-            column:
-              error.lineNumber <= 1
-                ? error.column + errorOffset.column
-                : error.column,
+            line: error.lineNumber,
+            column: error.column,
           },
           end: {
-            line: errorOffset.line + error.lineNumber - 1,
-            column:
-              error.lineNumber <= 1
-                ? error.column + errorOffset.column
-                : error.column,
+            line: error.lineNumber,
+            column: error.column,
           },
         },
         range: [astNode.start, astNode.end],
@@ -156,21 +154,24 @@ export function convertLexerErrorToNode(error: ILexingError) {
  * transpile Parse error to eslint node
  */
 export function convertParseErrorToNode(error: IRecognitionException) {
+  // @ts-ignore
+  const token = error.token.image ? error.token : error.previousToken;
   return {
     type: "WXParseError",
     value: error.message,
-    start: error.token.startOffset,
-    end: error.token.endOffset,
+    rawType: error.name,
+    start: token.startOffset,
+    end: token.endOffset,
     loc: {
       start: {
-        line: error.token.startLine,
-        column: error.token.startColumn,
+        line: token.startLine,
+        column: token.startColumn,
       },
       end: {
-        line: error.token.endLine,
-        column: error.token.endColumn,
+        line: token.endLine,
+        column: token.endColumn,
       },
     },
-    range: [error.token.startOffset, error.token.endOffset],
+    range: [token.startOffset, token.endOffset],
   };
 }

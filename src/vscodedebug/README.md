@@ -12,7 +12,7 @@ touch test.ts
 
 ```typescript
 // write a simple parse issue case
-import { parse } from "../src";
+import { parse, parseForESLint } from "../src";
 
 const ast = parse(`
 <wxs module="ss">

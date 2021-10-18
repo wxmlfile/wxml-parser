@@ -1,0 +1,14 @@
+<page-container>
+
+
+  <wxs>
+    // random position wxs node
+    function compare (a, b) {
+      return a > b;
+    }
+    module.exports = {
+      compare: compare
+    }
+  </wxs>
+  <other-wxml-node />
+</page-container>

@@ -127,10 +127,19 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
    * AST - WXAttribute
    */
   attribute(ctx, { location }) {
+    const rawValue = get(ctx, "STRING[0].image") || null;
+    const value = rawValue
+      ? rawValue
+          .split("")
+          .slice(1, rawValue.length - 1)
+          .join("")
+      : null;
     const astNode = {
       type: "WXAttribute",
       key: ctx.NAME[0].image,
-      value: ctx?.STRING?.[0]?.image || null,
+      value,
+      rawValue,
+      quote: rawValue?.length ? rawValue.slice(0, 1) : null,
     };
     mergeLocation(astNode, location);
     return astNode;
