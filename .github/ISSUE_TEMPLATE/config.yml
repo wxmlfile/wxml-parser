@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ✨ Feature Request / idea
+    url: https://github.com/wxmlfile/wxml-parser/issues/new/choose
+    about: Missing something in @wxml/parser? Let us know.
+  - name: 💬 Question / Discussion
+    url: https://github.com/wxmlfile/wxml-parser/issues/new/choose
+    about: Feel free to ask anything
+  - name: 📖 View wxml documentation
+    url: https://developers.weixin.qq.com/miniprogram/dev/reference/wxml
+    about: Official Wechat MiniProgram wxml documentation    
+  - name: ❓ Wechat MiniPorgram Question
+    url: https://developers.weixin.qq.com/community/develop/question
+    about: Official Wehcat MiniProgram Question Home Page
