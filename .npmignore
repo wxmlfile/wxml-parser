@@ -7,6 +7,12 @@ dist
 .idea/
 .vscode/
 
+package-lock.json
 .eslintignore
 .eslintrc.js
 .prettierrc
+rollup.config.js
+tsconfig.cjs.json
+tsconfig.json
+CONTRIBUTING
+CHANGELOG.md
