@@ -1,0 +1,8 @@
+src
+tests
+dist
+
+.github/
+.husky/
+.idea/
+.vscode/
