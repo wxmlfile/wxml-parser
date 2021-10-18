@@ -13,6 +13,10 @@
   ],
   "author": "iChenLei <chenleicoder@gmail.com>",
   "license": "MIT",
+  "bugs": {
+    "email": "chenleicoder+npm@gmail.com",
+    "url": "https://github.com/wxmlfile/wxml-parser/issues"
+  },
   "scripts": {
     "prepare": "husky install",
     "prebuild": "rm -rf ./dist && rm -rf ./lib",
