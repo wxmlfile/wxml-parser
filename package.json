@@ -1,6 +1,6 @@
 {
   "name": "@wxml/parser",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A fast and tolerant wxml parser",
   "type": "commonjs",
   "main": "lib/index.js",
@@ -11,6 +11,10 @@
     "wexin",
     "miniprogram"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wxmlfile/wxml-parser.git"
+  },
   "author": "iChenLei <chenleicoder@gmail.com>",
   "license": "MIT",
   "bugs": {
