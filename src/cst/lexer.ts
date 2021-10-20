@@ -87,7 +87,9 @@ const TEXT = createToken({ name: "TEXT", pattern: /[^<]+/ });
 
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
-  pattern: /[^]+?(?=<\/wxs>)/,
+  // ( |\t|\n|\r\n)*
+  // allow these case </wxs    /> or </ wxs  />
+  pattern: /[^]+?(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>)/,
   line_breaks: true,
 });
 
@@ -103,7 +105,17 @@ const SLASH = createToken({ name: "SLASH", pattern: /\// });
 
 const STRING = createToken({
   name: "STRING",
-  pattern: /"[^<"]*"|'[^<']*'/,
+  pattern: /"[^"]*"|'[^']*'/,
+});
+
+const MUSTACHE_LEFT = createToken({
+  name: "MUSTACHE_LEFT",
+  pattern: /\{\{/,
+});
+
+const MUSTACHE_RIGHT = createToken({
+  name: "MUSTACHE_RIGHT",
+  pattern: /\}\}/,
 });
 
 const EQUALS = createToken({ name: "EQUALS", pattern: /=/ });
