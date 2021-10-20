@@ -203,4 +203,46 @@ describe("Base Test Suite", () => {
     expect(wxElement).to.have.property("name");
     expect(wxElement.name).to.be.equals("comp");
   })
+
+  it("can parse tag which endTag contain white space", () => {
+    const ast = parse(`
+      <comp></ comp >
+      <comp2></ comp2>
+      <comp3></comp3 >
+    `);
+    expect(ast.errors.length).to.be.equals(0)
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(3);
+    expect(matches[0].endTag.name).to.be.equals("comp");
+    expect(matches[1].endTag.name).to.be.equals("comp2");
+    expect(matches[2].endTag.name).to.be.equals("comp3");
+  })
+
+  it("can parse WXAttribute interpolation", () => {
+    const ast = parse(`
+      <comp wx:if="{{ index < list.length }}" ></comp>
+      <mall wx:if="{{ index > list.length }}" ></mall>
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(2);
+    const attrMatches = esquery(ast, "WXAttribute");
+    expect(attrMatches).to.be.lengthOf(2);
+    expect(attrMatches[0].value).to.be.equals("{{ index < list.length }}");
+    expect(attrMatches[1].value).to.be.equals("{{ index > list.length }}");
+  })
+
+  it("can parse WXAttribute interpolation #2", () => {
+    const ast = parse(`
+      <comp wx:if="{{ index > 5 ? '</ss>' : '<pp />' }}" ></comp>
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    const attrMatches = esquery(ast, "WXAttribute");
+    expect(attrMatches).to.be.lengthOf(1);
+    expect(attrMatches[0].value).to.be.equals("{{ index > 5 ? '</ss>' : '<pp />' }}");
+  })
 })

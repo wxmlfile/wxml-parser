@@ -149,7 +149,9 @@ class Parser extends CstParser {
       $.MANY(() => {
         $.CONSUME(t.SEA_WS);
       });
-      $.CONSUME(t.WXS_TEXT);
+      $.OPTION(() => {
+        $.CONSUME(t.WXS_TEXT);
+      });
     });
 
     this.performSelfAnalysis();

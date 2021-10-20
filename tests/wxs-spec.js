@@ -1,8 +1,8 @@
 const { expect } = require("chai");
 const _ = require("lodash");
+const esquery = require("esquery");
 
 const { parse } = require("../lib");
-const { walkAstCountType } = require("./utils");
 
 describe('WXS Test Suite', () => {
   it("should allow set wxs as sub wxml node", () => {
@@ -18,7 +18,8 @@ describe('WXS Test Suite', () => {
        </wxs>
      </app>
     `);
-    expect(walkAstCountType(ast, 'WXScript')).to.equals(4);
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs).to.be.lengthOf(4);
     expect(ast.errors.length).to.equals(0);
   });
 
@@ -45,8 +46,8 @@ describe('WXS Test Suite', () => {
         module.exports = { name: "yunlei" }
       </wxs>
     `)
-    const wxsNodes = _.filter(_.get(ast, "body") || [], node => node.type === "WXScript");
-    expect(wxsNodes.length).to.equals(4);
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs).to.be.lengthOf(4);
   });
 
   it("inline wxs can use characters of [></]", () => {
@@ -60,7 +61,7 @@ describe('WXS Test Suite', () => {
         module.exports = { compare: compare }
       </wxs>
     `)
-    expect(ast.errors.length).to.equals(0)
+    expect(ast.errors.length).to.be.equals(0)
   })
 
   it("not allow write </wxs> in wxs inline js content", () => {
@@ -73,7 +74,27 @@ describe('WXS Test Suite', () => {
         module.exports = { compare: compare }
       </wxs>
     `)
-    expect(ast.errors.length).to.gt(0)
+    expect(ast.errors.length).to.be.gt(0)
+  });
+
+  it("allow whitespace in wxs end tag </wxs   > or </  wxs >  ", () => {
+    const ast = parse(`
+      <wxs module="xxxx" >  </wxs>
+      <wxs module="convert">
+        function compare (a, b) {
+          return a > b;
+        }
+        module.exports = { compare: compare }
+      </wxs    
+      
+      >
+      <wxs module="xxxx" >  090</ wxs   > 
+      <wxs module="xxxx" >  090</ wxs> 
+    `)
+
+    expect(ast.errors.length).to.be.equals(0)
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs).to.be.lengthOf(4);
   });
 
 })

@@ -29,7 +29,8 @@
     "format": "prettier  \"./src\" --write ",
     "pretest": "npm run build",
     "prepublish": "npm run build",
-    "test": "mocha tests/ --require chai --bail --check-leaks"
+    "test": "npm run puretest",
+    "puretest": "mocha tests/ --require chai --bail --check-leaks"
   },
   "dependencies": {},
   "devDependencies": {
