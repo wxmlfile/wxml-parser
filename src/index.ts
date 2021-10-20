@@ -12,7 +12,9 @@ function parseForESLint(code: string) {
     ast: buildAst(cst, tokenVector, lexErrors, parseErrors, true),
     services: {},
     scopeManager: null,
-    visitorKeys: null,
+    visitorKeys: {
+      Program: ["errors", "body"],
+    },
   };
 }
 
