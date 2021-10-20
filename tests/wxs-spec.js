@@ -97,4 +97,20 @@ describe('WXS Test Suite', () => {
     expect(matchs).to.be.lengthOf(4);
   });
 
+  it("empty non-selfClosing wxs tag", () => {
+    const ast = parse(`
+      <wxs></wxs>
+      <wxs> </wxs>
+      <wxs>
+      
+      </wxs>
+    `)
+
+    expect(ast.errors.length).to.be.equals(0)
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs[0].value.replace(/( |\t|\n|\r\n)+/, "")).to.be.equals("");
+    expect(matchs[1].value.replace(/( |\t|\n|\r\n)+/, "")).to.be.equals("");
+    expect(matchs[2].value.replace(/( |\t|\n|\r\n)+/, "")).to.be.equals("");
+  });
+
 })
