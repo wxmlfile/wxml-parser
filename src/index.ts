@@ -13,7 +13,7 @@ function parseForESLint(code: string) {
     services: {},
     scopeManager: null,
     visitorKeys: {
-      Program: ["errors", "body"]
+      Program: ["errors", "body"],
     },
   };
 }
