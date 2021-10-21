@@ -14,6 +14,29 @@ interface IEspreeError {
 }
 
 /**
+ * sort token children
+ */
+export function sortTokenChildren(tokensArr) {
+  let tokens: CstNodeLocation[] = [];
+  let sortedTokens: CstNodeLocation[] = [];
+  Object.keys(tokensArr).forEach((key) => {
+    tokens.push(...tokensArr[key]);
+  });
+  sortedTokens = tokens.sort((nodeA, nodeB) => {
+    if (
+      nodeA.startLine > nodeB.startLine ||
+      (nodeA.startLine === nodeB.startLine &&
+        nodeA.startColumn > nodeB.startColumn)
+    ) {
+      return 1;
+    } else {
+      return -1;
+    }
+  });
+  return sortedTokens;
+}
+
+/**
  * sort cst children
  */
 export function sortCstChildren(ctx: Record<string, CstNode[]>): CstNode[] {
@@ -100,7 +123,8 @@ export function parseInlineJS(astNode): void {
       });
       espreeAst.type = "WXScriptProgram";
       espreeAst.offset = [];
-      astNode.body = espreeAst;
+      // https://github.com/estree/estree/blob/master/es2015.md#programs
+      astNode.body = [espreeAst];
     } catch (e) {
       // IEspreeError
       const error = e as IEspreeError;

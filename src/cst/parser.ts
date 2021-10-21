@@ -12,6 +12,7 @@ class Parser extends CstParser {
   attribute: IRule;
   content: IRule;
   wxscontent: IRule;
+  interpolation: IRule;
 
   constructor() {
     super(t, {
@@ -29,6 +30,7 @@ class Parser extends CstParser {
           { ALT: () => $.SUBRULE($.element) },
           { ALT: () => $.SUBRULE($.comment) },
           { ALT: () => $.SUBRULE($.chardata) },
+          { ALT: () => $.SUBRULE($.interpolation) },
         ]);
       });
     });
@@ -38,6 +40,7 @@ class Parser extends CstParser {
         $.OR([
           { ALT: () => $.SUBRULE($.wxs) },
           { ALT: () => $.SUBRULE($.element) },
+          { ALT: () => $.SUBRULE($.interpolation) },
           { ALT: () => $.SUBRULE($.chardata) },
           { ALT: () => $.SUBRULE($.comment) },
         ]);
@@ -84,6 +87,25 @@ class Parser extends CstParser {
           },
         },
       ]);
+    });
+
+    $.RULE("interpolation", () => {
+      $.CONSUME(t.MUSTACHE_LEFT);
+      $.MANY(() => {
+        $.OR([
+          { ALT: () => $.CONSUME(t.INTPN) },
+          {
+            ALT: () =>
+              $.CONSUME(t.STRING, {
+                ERR_MSG: "wx interpolation unexpected string",
+              }),
+          },
+          { ALT: () => $.CONSUME(t.SEA_WS) },
+        ]);
+      });
+      $.CONSUME(t.MUSTACHE_RIGHT, {
+        ERR_MSG: "wx interpolation unexpected end",
+      });
     });
 
     $.RULE("element", () => {
