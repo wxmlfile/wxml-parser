@@ -7,6 +7,7 @@ import {
   parseInlineJS,
   convertLexerErrorToNode,
   convertParseErrorToNode,
+  sortTokenChildren,
 } from "./util";
 
 type ICtx = Record<string, CstNode[]>;
@@ -76,6 +77,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       };
       astNode.startTag = {
         type: "WXStartTag",
+        name: "wxs",
         attributes: ctx.attribute
           ? map(ctx.attribute, this.visit.bind(this))
           : [],
@@ -145,6 +147,22 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     return astNode;
   }
 
+  /**
+   * AST - WXInterpolation
+   */
+  interpolation(ctx, { location }) {
+    const child = sortTokenChildren(ctx);
+    // @ts-expect-error
+    const value = (child || []).map((token) => token.image).join("");
+    const astNode = {
+      type: "WXInterpolation",
+      rawValue: value,
+      value: value.replace(/^{{/, "").replace(/}}$/, ""),
+    };
+    mergeLocation(astNode, location);
+    return astNode;
+  }
+
   content(ctx) {
     // sort child node first
     const child = sortCstChildren(ctx);
@@ -173,6 +191,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     if (ctx.OPEN?.[0] && (ctx.START_CLOSE?.[0] || ctx.SLASH_CLOSE?.[0])) {
       astNode.startTag = {
         type: "WXStartTag",
+        name: astNode.name,
         attributes: ctx.attribute
           ? map(ctx.attribute, this.visit.bind(this))
           : [],

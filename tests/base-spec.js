@@ -38,7 +38,9 @@ describe("Base Test Suite", () => {
     expect(wxElement.endTag.name).to.be.equals("element");
     expect(wxElement).to.have.property("startTag");
     expect(wxStartTag).to.have.property("selfClosing");
-    expect(wxStartTag.selfClosing).to.be.false
+    expect(wxStartTag.name).to.be.equals("element");
+    expect(wxStartTag.selfClosing).to.be.false;
+    expect(wxEndTag.name).to.be.equals("element");
   })
 
   it("can parse mismatch tag name WXElement", () => {
@@ -69,6 +71,8 @@ describe("Base Test Suite", () => {
     expect(wxStartTag.attributes).to.be.lengthOf(2);
     expect(wxStartTag).to.have.property("selfClosing");
     expect(wxStartTag.selfClosing).to.be.equals(true);
+    expect(wxStartTag).to.have.property("name");
+    expect(wxStartTag.name).to.be.equals("wxs");
   })
 
   it("can parse WXEndTag", () => {
@@ -151,8 +155,8 @@ describe("Base Test Suite", () => {
       tail text
     `);
     const matches = esquery(ast, "WXText");
-    expect(matches).to.be.lengthOf(5);
-    const wxText = matches[2];
+    expect(matches).to.be.lengthOf(7);
+    const wxText = matches[3];
     expect(wxText).to.have.property("value");
     expect(wxText.value).to.be.equals("text in wxml node")
   });
@@ -245,4 +249,60 @@ describe("Base Test Suite", () => {
     expect(attrMatches).to.be.lengthOf(1);
     expect(attrMatches[0].value).to.be.equals("{{ index > 5 ? '</ss>' : '<pp />' }}");
   })
+
+  it("support kebab-case WXElement name", () => {
+    const ast = parse(`
+      <v-table />
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    expect(_.get(matches, "[0].name")).to.be.equals("v-table");
+  })
+
+  it("support camelCase WXElement name", () => {
+    const ast = parse(`
+      <mallHome />
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    expect(_.get(matches, "[0].name")).to.be.equals("mallHome");
+  })
+
+  it("support PascalCase WXElement name", () => {
+    const ast = parse(`
+      <MallHome />
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    expect(_.get(matches, "[0].name")).to.be.equals("MallHome");
+  })
+
+  it("support snake_case WXElement name", () => {
+    const ast = parse(`
+      <mall_home />
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    expect(_.get(matches, "[0].name")).to.be.equals("mall_home");
+  })
+
+  it("support WXElement name conatin number", () => {
+    const ast = parse(`
+      <popup-v2 />
+    `);
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXElement");
+    expect(matches).to.be.lengthOf(1);
+    expect(_.get(matches, "[0].name")).to.be.equals("popup-v2");
+  })
+
 })

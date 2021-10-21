@@ -83,7 +83,9 @@ const INVALID_OPEN_INSIDE = createToken({
   categories: [OPEN],
 });
 
-const TEXT = createToken({ name: "TEXT", pattern: /[^<]+/ });
+const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|{{)).)+/ });
+
+const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|}})).)+/ });
 
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
@@ -111,11 +113,13 @@ const STRING = createToken({
 const MUSTACHE_LEFT = createToken({
   name: "MUSTACHE_LEFT",
   pattern: /\{\{/,
+  push_mode: "INTPN_INSIDE",
 });
 
 const MUSTACHE_RIGHT = createToken({
   name: "MUSTACHE_RIGHT",
   pattern: /\}\}/,
+  pop_mode: true,
 });
 
 const EQUALS = createToken({ name: "EQUALS", pattern: /=/ });
@@ -132,7 +136,17 @@ const wxmlLexerDefinition = {
   defaultMode: "OUTSIDE",
 
   modes: {
-    OUTSIDE: [WXS_START, COMMENT, SEA_WS, SLASH_OPEN, OPEN, WXS_TEXT, TEXT],
+    OUTSIDE: [
+      WXS_START,
+      COMMENT,
+      SEA_WS,
+      SLASH_OPEN,
+      OPEN,
+      WXS_TEXT,
+      TEXT,
+      MUSTACHE_LEFT,
+    ],
+    INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, STRING],
     INSIDE: [
       // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,

@@ -190,4 +190,61 @@ describe("Error Test Suite", () => {
     expect(attrsMatchs).to.be.lengthOf(1);
   });
 
+  it("interpolation missing close bracket", () => {
+    const ast = parse(`
+      <app>
+        {{ nihao
+      </app>
+    `);
+
+    // @wxml/parser try to lookup missing close bracket
+    // {{ nihao }}
+    //          ↑↑
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(3);
+    const parseError = parseErrorMatchs[2];
+    expect(parseError).to.have.property("rawType");
+    expect(parseError.rawType).to.be.equals("MismatchedTokenException");
+    expect(parseError).to.have.property("value");
+    expect(parseError.value).to.be.equals("wx interpolation unexpected end");
+
+    // tolerant parse
+    const elementMatchs = esquery(ast, "WXElement");
+    expect(elementMatchs).to.be.lengthOf(1);
+  });
+
+  it("interpolation missing close bracket #2", () => {
+    const ast = parse(`
+      <app key="value">
+        {{ nihao '" }}
+      </app>
+    `);
+
+    // @wxml/parser try to lookup missing close bracket
+    // {{ nihao }}
+    //          ↑↑
+    const parseErrorMatchs = _.get(ast, 'errors') || [];
+    expect(parseErrorMatchs).to.be.lengthOf(1);
+    const parseError = parseErrorMatchs[0];
+    expect(parseError).to.have.property("type");
+    expect(parseError.type).to.be.equals("WXLexerError");
+    expect(parseError).to.have.property("value");
+    expect(parseError.value).to.be.equals("unexpected character: ->'<- at offset: 42, skipped 2 characters.");
+
+    // tolerant parse
+    const elementMatchs = esquery(ast, "WXElement");
+    const attrMatchs = esquery(ast, "WXAttribute");
+    const intpnMatchs = esquery(ast, "WXInterpolation");
+    expect(elementMatchs).to.be.lengthOf(1);
+    expect(attrMatchs).to.be.lengthOf(1);
+    expect(intpnMatchs).to.be.lengthOf(1);
+    expect(_.get(elementMatchs, '[0].startTag.selfClosing')).to.be.false;
+    expect(_.get(elementMatchs, '[0].startTag.name')).to.be.equals("app");
+    expect(_.get(elementMatchs, '[0].endTag.name')).to.be.equals("app");
+    expect(_.get(attrMatchs, "[0].key")).to.equals("key");
+    expect(_.get(attrMatchs, "[0].value")).to.equals("value");
+
+    expect(_.get(ast, ))
+  });
+
 })
