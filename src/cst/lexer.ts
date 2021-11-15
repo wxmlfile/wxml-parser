@@ -146,7 +146,7 @@ const wxmlLexerDefinition = {
       TEXT,
       MUSTACHE_LEFT,
     ],
-    INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, STRING],
+    INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, SEA_WS, STRING],
     INSIDE: [
       // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,

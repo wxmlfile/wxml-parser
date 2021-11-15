@@ -201,8 +201,8 @@ describe("Error Test Suite", () => {
     // {{ nihao }}
     //          ↑↑
     const parseErrorMatchs = _.get(ast, 'errors') || [];
-    expect(parseErrorMatchs).to.be.lengthOf(3);
-    const parseError = parseErrorMatchs[2];
+    expect(parseErrorMatchs).to.be.lengthOf(1);
+    const parseError = parseErrorMatchs[0];
     expect(parseError).to.have.property("rawType");
     expect(parseError.rawType).to.be.equals("MismatchedTokenException");
     expect(parseError).to.have.property("value");

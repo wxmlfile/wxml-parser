@@ -139,4 +139,18 @@ describe("Interpolation Test Suite", () => {
   // <template is="objectCombine" data="{{...obj1, ...obj2, e: 5}}"></template>
   // <view wx:for="{{[1,2,3]}} ">
 
+  // #12 multi line
+  it("can parse WXInterpolation - multi line", () => {
+    const ast = parse(`
+       <view>
+        {{ OPTIONAL.default === type
+           ? "xiaomi"
+           : "meizu" }}
+      </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(1);
+  })
+
 });
