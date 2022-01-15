@@ -8,12 +8,11 @@ on:
 
 jobs:
   node_tests:
-    name: 'Test @wxml/parser on ${{matrix.os}} with node${{matrix.node}}'
+    name: 'Test @wxml/parser on node${{matrix.node}} width ${{matrix.os}}'
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # Latest four Nodejs LTS version
-        node: [10, 12, 14, 16]
+        node: [12, 14, 16, 17]
     runs-on: ${{ matrix.os }}
     steps:
      # Pull repo to test machine
