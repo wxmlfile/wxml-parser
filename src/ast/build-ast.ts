@@ -57,6 +57,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     // process wxs inline js string first
     const astNode = {
       type: "WXScript",
+      name: "wxs",
       value: null,
       startTag: null,
       endTag: null,
