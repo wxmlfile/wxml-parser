@@ -113,4 +113,14 @@ describe('WXS Test Suite', () => {
     expect(matchs[2].value.replace(/( |\t|\n|\r\n)+/, "")).to.be.equals("");
   });
 
+  it("WXSxript node should contain `name` property", () => {
+    const ast = parse(`
+      <wxs> var s = 22; </wxs>
+    `)
+
+    expect(ast.errors.length).to.be.equals(0);
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs[0].name).to.be.equals("wxs");
+  });
+
 })
