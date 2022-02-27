@@ -53,9 +53,9 @@ describe("Error Test Suite", () => {
 
     const parseError = parseErrorMatchs[0];
     expect(parseError).to.have.property("rawType");
-    expect(parseError.rawType).to.be.equals("MismatchedTokenException");
+    expect(parseError.rawType).to.be.equals("NoViableAltException");
     expect(parseError).to.have.property("value");
-    expect(parseError.value).to.be.equals("wx attributes missing value");
+    expect(parseError.value).to.be.equals('Expecting: one of these possible Token sequences:\n  1. [PURE_STRING]\n  2. [DOUBLE_QUOTE_START]\n  3. [SINGLE_QUOTE_START]\nbut found: \'>\'' );
 
     // check WXAttribute
     const attrsMatchs = esquery(ast, "WXAttribute")
@@ -64,9 +64,7 @@ describe("Error Test Suite", () => {
     expect(attr).to.have.property("key");
     expect(attr.key).to.be.equals("a");
     // all value relative val should be null
-    expect(attr.quote).to.be.null;
-    expect(attr.value).to.be.null;
-    expect(attr.rawValue).to.be.null;
+    expect(attr.value).to.be.undefined;
   });
 
   it("start tag missing name error", () => {
@@ -242,7 +240,7 @@ describe("Error Test Suite", () => {
     expect(_.get(elementMatchs, '[0].startTag.name')).to.be.equals("app");
     expect(_.get(elementMatchs, '[0].endTag.name')).to.be.equals("app");
     expect(_.get(attrMatchs, "[0].key")).to.equals("key");
-    expect(_.get(attrMatchs, "[0].value")).to.equals("value");
+    expect(_.get(attrMatchs, "[0].value.value")).to.equals("value");
 
     expect(_.get(ast, ))
   });

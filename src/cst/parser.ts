@@ -167,7 +167,9 @@ class Parser extends CstParser {
     $.RULE("attributeValue", () => {
       $.OR([
         {
-          ALT: () => $.CONSUME(t.PURE_STRING),
+          ALT: () => $.CONSUME(t.PURE_STRING, {
+            ERR_MSG: "wx attributes missing value",
+          }),
         },
         {
           ALT: () => $.SUBRULE($.doubleQuoteAttributeVal),
@@ -179,11 +181,15 @@ class Parser extends CstParser {
     });
 
     $.RULE("doubleQuoteAttributeVal", () => {
-      $.CONSUME(t.DOUBLE_QUOTE_START);
+      $.CONSUME(t.DOUBLE_QUOTE_START, {
+        ERR_MSG: "wx attributes unexpected start",
+      });
       $.MANY(() => {
         $.OR([
           {
-            ALT: () => $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE),
+            ALT: () => $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE, {
+              ERR_MSG: "wx attributes missing value",
+            }),
           },
           {
             ALT: () => $.SUBRULE($.attributeValInterpolation),
@@ -191,16 +197,20 @@ class Parser extends CstParser {
         ]);
       });
       $.CONSUME(t.DOUBLE_QUOTE_END, {
-        ERR_MSG: "wx interpolation unexpected end",
+        ERR_MSG: "wx attribute value unexpected end",
       });
     });
 
     $.RULE("singleQuoteAttributeVal", () => {
-      $.CONSUME(t.SINGLE_QUOTE_START);
+      $.CONSUME(t.SINGLE_QUOTE_START, {
+        ERR_MSG: "wx attributes unexpected start",
+      });
       $.MANY(() => {
         $.OR([
           {
-            ALT: () => $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE),
+            ALT: () => $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE, {
+              ERR_MSG: "wx attributes missing value",
+            }),
           },
           {
             ALT: () => $.SUBRULE($.attributeValInterpolation),
@@ -208,26 +218,32 @@ class Parser extends CstParser {
         ]);
       });
       $.CONSUME(t.SINGLE_QUOTE_END, {
-        ERR_MSG: "wx interpolation unexpected end",
+        ERR_MSG: "wx attribute value unexpected end",
       });
     });
 
     $.RULE("attributeValInterpolation", () => {
-      $.CONSUME(t.MUSTACHE_LEFT_IN_QUOTE);
+      $.CONSUME(t.MUSTACHE_LEFT_IN_QUOTE, {
+        ERR_MSG: "wx interpolation in attributes value unexpected start",
+      });
       $.MANY(() => {
         $.OR([
-          { ALT: () => $.CONSUME(t.INTPN) },
+          { ALT: () => $.CONSUME(t.INTPN, {
+            ERR_MSG: "wx interpolation in attributes unexpected intpn",
+          }) },
           {
             ALT: () =>
               $.CONSUME(t.STRING, {
-                ERR_MSG: "wx interpolation unexpected string",
+                ERR_MSG: "wx interpolation in attributes unexpected string",
               }),
           },
-          { ALT: () => $.CONSUME(t.SEA_WS) },
+          { ALT: () => $.CONSUME(t.SEA_WS, {
+            ERR_MSG: "wx interpolation in attributes unexpected intpn",
+          }) },
         ]);
       });
       $.CONSUME(t.MUSTACHE_RIGHT_IN_QUOTE, {
-        ERR_MSG: "wx interpolation unexpected end",
+        ERR_MSG: "wx interpolation in attribute value unexpected end",
       });
     });
 
