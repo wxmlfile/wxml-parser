@@ -13,6 +13,10 @@ class Parser extends CstParser {
   content: IRule;
   wxscontent: IRule;
   interpolation: IRule;
+  attributeValue: IRule;
+  doubleQuoteAttributeVal: IRule;
+  singleQuoteAttributeVal: IRule;
+  attributeValInterpolation: IRule;
 
   constructor() {
     super(t, {
@@ -153,10 +157,77 @@ class Parser extends CstParser {
           {
             ALT: () => {
               $.CONSUME(t.EQUALS);
-              $.CONSUME(t.STRING, { ERR_MSG: "wx attributes missing value" });
+              $.SUBRULE($.attributeValue);
             },
           },
         ]);
+      });
+    });
+
+    $.RULE("attributeValue", () => {
+      $.OR([
+        {
+          ALT: () => $.CONSUME(t.PURE_STRING),
+        },
+        {
+          ALT: () => $.SUBRULE($.doubleQuoteAttributeVal),
+        },
+        {
+          ALT: () => $.SUBRULE($.singleQuoteAttributeVal),
+        },
+      ]);
+    });
+
+    $.RULE("doubleQuoteAttributeVal", () => {
+      $.CONSUME(t.DOUBLE_QUOTE_START);
+      $.MANY(() => {
+        $.OR([
+          {
+            ALT: () => $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE),
+          },
+          {
+            ALT: () => $.SUBRULE($.attributeValInterpolation),
+          },
+        ]);
+      });
+      $.CONSUME(t.DOUBLE_QUOTE_END, {
+        ERR_MSG: "wx interpolation unexpected end",
+      });
+    });
+
+    $.RULE("singleQuoteAttributeVal", () => {
+      $.CONSUME(t.SINGLE_QUOTE_START);
+      $.MANY(() => {
+        $.OR([
+          {
+            ALT: () => $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE),
+          },
+          {
+            ALT: () => $.SUBRULE($.attributeValInterpolation),
+          },
+        ]);
+      });
+      $.CONSUME(t.SINGLE_QUOTE_END, {
+        ERR_MSG: "wx interpolation unexpected end",
+      });
+    });
+
+    $.RULE("attributeValInterpolation", () => {
+      $.CONSUME(t.MUSTACHE_LEFT_IN_QUOTE);
+      $.MANY(() => {
+        $.OR([
+          { ALT: () => $.CONSUME(t.INTPN) },
+          {
+            ALT: () =>
+              $.CONSUME(t.STRING, {
+                ERR_MSG: "wx interpolation unexpected string",
+              }),
+          },
+          { ALT: () => $.CONSUME(t.SEA_WS) },
+        ]);
+      });
+      $.CONSUME(t.MUSTACHE_RIGHT_IN_QUOTE, {
+        ERR_MSG: "wx interpolation unexpected end",
       });
     });
 

@@ -21,12 +21,10 @@ function makePattern(strings, ...args) {
   return new RegExp(combined);
 }
 
-const tokensArray = [];
 export const tokensDictionary = {} as Record<string, TokenType>;
 
 function createToken(options) {
   const newTokenType = createTokenOrg(options);
-  tokensArray.push(newTokenType);
   tokensDictionary[options.name] = newTokenType;
   return newTokenType;
 }
@@ -83,9 +81,9 @@ const INVALID_OPEN_INSIDE = createToken({
   categories: [OPEN],
 });
 
-const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|{{)).)+/ });
+const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|\{\{)).)+/ });
 
-const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|}})).)+/ });
+const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|\}\})).)+/ });
 
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
@@ -116,8 +114,20 @@ const MUSTACHE_LEFT = createToken({
   push_mode: "INTPN_INSIDE",
 });
 
+const MUSTACHE_LEFT_IN_QUOTE = createToken({
+  name: "MUSTACHE_LEFT_IN_QUOTE",
+  pattern: /\{\{/,
+  push_mode: "INTPN_IN_QUOTE",
+});
+
 const MUSTACHE_RIGHT = createToken({
   name: "MUSTACHE_RIGHT",
+  pattern: /\}\}/,
+  pop_mode: true,
+});
+
+const MUSTACHE_RIGHT_IN_QUOTE = createToken({
+  name: "MUSTACHE_RIGHT_IN_QUOTE",
   pattern: /\}\}/,
   pop_mode: true,
 });
@@ -130,6 +140,45 @@ const SPACE = createToken({
   name: "SPACE",
   pattern: /[ \t\r\n]/,
   group: Lexer.SKIPPED,
+});
+
+const PURE_STRING = createToken({
+  name: "PURE_STRING",
+  pattern: /"[^"^(\{\{)]*"|'[^'^(\{\{)]*'/,
+});
+
+const PURE_STRING_IN_DOUBLE_QUOTE = createToken({
+  name: "PURE_STRING_IN_DOUBLE_QUOTE",
+  pattern: /[^"^(\{\{)^(\}\})]+/,
+});
+
+const PURE_STRING_IN_SINGLE_QUOTE = createToken({
+  name: "PURE_STRING_IN_SINGLE_QUOTE",
+  pattern: /[^'^(\{\{)^(\}\})]+/,
+});
+
+const DOUBLE_QUOTE_START = createToken({
+  name: "DOUBLE_QUOTE_START",
+  pattern: /"/,
+  push_mode: "DOUBLE_QUOTE_STR_INSIDE",
+});
+
+const DOUBLE_QUOTE_END = createToken({
+  name: "DOUBLE_QUOTE_END",
+  pattern: /"/,
+  pop_mode: true,
+});
+
+const SINGLE_QUOTE_START = createToken({
+  name: "SINGLE_QUOTE_START",
+  pattern: /'/,
+  push_mode: "SINGLE_QUOTE_STR_INSIDE",
+});
+
+const SINGLE_QUOTE_END = createToken({
+  name: "SINGLE_QUOTE_END",
+  pattern: /'/,
+  pop_mode: true,
 });
 
 const wxmlLexerDefinition = {
@@ -147,6 +196,19 @@ const wxmlLexerDefinition = {
       MUSTACHE_LEFT,
     ],
     INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, SEA_WS, STRING],
+    DOUBLE_QUOTE_STR_INSIDE: [
+      DOUBLE_QUOTE_END,
+      MUSTACHE_LEFT_IN_QUOTE,
+      PURE_STRING_IN_DOUBLE_QUOTE,
+      SEA_WS,
+    ],
+    SINGLE_QUOTE_STR_INSIDE: [
+      SINGLE_QUOTE_END,
+      MUSTACHE_LEFT_IN_QUOTE,
+      PURE_STRING_IN_SINGLE_QUOTE,
+      SEA_WS,
+    ],
+    INTPN_IN_QUOTE: [MUSTACHE_RIGHT_IN_QUOTE, INTPN, STRING, SEA_WS],
     INSIDE: [
       // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,
@@ -157,7 +219,9 @@ const wxmlLexerDefinition = {
       SLASH_CLOSE,
       SLASH,
       EQUALS,
-      STRING,
+      PURE_STRING,
+      DOUBLE_QUOTE_START,
+      SINGLE_QUOTE_START,
       NAME,
       SPACE,
     ],

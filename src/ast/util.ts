@@ -13,6 +13,35 @@ interface IEspreeError {
   stack: string;
 }
 
+interface ASTNode {
+  loc: {
+    start: {
+      line: number;
+      column: number;
+    };
+  };
+}
+
+export function sortASTNode(nodes: Array<ASTNode>): Array<ASTNode> {
+  let nodeASTs = [];
+  nodes.forEach((node) => {
+    nodeASTs.push(node);
+  });
+  let sortedNodes = [];
+  sortedNodes = nodes.sort((nodeA, nodeB) => {
+    if (
+      nodeA.loc.start.line > nodeB.loc.start.line ||
+      (nodeA.loc.start.line === nodeB.loc.start.line &&
+        nodeA.loc.start.column > nodeB.loc.start.column)
+    ) {
+      return 1;
+    } else {
+      return -1;
+    }
+  });
+  return sortedNodes;
+}
+
 /**
  * sort token children
  */
