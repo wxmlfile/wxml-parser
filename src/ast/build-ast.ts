@@ -156,7 +156,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
           .split("")
           .slice(1, raw.length - 1)
           .join(""),
-        raw: ctx.PURE_STRING[0].image,
+        rawValue: ctx.PURE_STRING[0].image,
         quote: raw?.length ? raw.slice(0, 1) : null,
       };
       mergeLocation(astNode, location);

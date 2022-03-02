@@ -167,9 +167,10 @@ class Parser extends CstParser {
     $.RULE("attributeValue", () => {
       $.OR([
         {
-          ALT: () => $.CONSUME(t.PURE_STRING, {
-            ERR_MSG: "wx attributes missing value",
-          }),
+          ALT: () =>
+            $.CONSUME(t.PURE_STRING, {
+              ERR_MSG: "wx attributes missing value",
+            }),
         },
         {
           ALT: () => $.SUBRULE($.doubleQuoteAttributeVal),
@@ -187,9 +188,10 @@ class Parser extends CstParser {
       $.MANY(() => {
         $.OR([
           {
-            ALT: () => $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE, {
-              ERR_MSG: "wx attributes missing value",
-            }),
+            ALT: () =>
+              $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE, {
+                ERR_MSG: "wx attributes missing value",
+              }),
           },
           {
             ALT: () => $.SUBRULE($.attributeValInterpolation),
@@ -208,9 +210,10 @@ class Parser extends CstParser {
       $.MANY(() => {
         $.OR([
           {
-            ALT: () => $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE, {
-              ERR_MSG: "wx attributes missing value",
-            }),
+            ALT: () =>
+              $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE, {
+                ERR_MSG: "wx attributes missing value",
+              }),
           },
           {
             ALT: () => $.SUBRULE($.attributeValInterpolation),
@@ -228,18 +231,24 @@ class Parser extends CstParser {
       });
       $.MANY(() => {
         $.OR([
-          { ALT: () => $.CONSUME(t.INTPN, {
-            ERR_MSG: "wx interpolation in attributes unexpected intpn",
-          }) },
+          {
+            ALT: () =>
+              $.CONSUME(t.INTPN, {
+                ERR_MSG: "wx interpolation in attributes unexpected intpn",
+              }),
+          },
           {
             ALT: () =>
               $.CONSUME(t.STRING, {
                 ERR_MSG: "wx interpolation in attributes unexpected string",
               }),
           },
-          { ALT: () => $.CONSUME(t.SEA_WS, {
-            ERR_MSG: "wx interpolation in attributes unexpected intpn",
-          }) },
+          {
+            ALT: () =>
+              $.CONSUME(t.SEA_WS, {
+                ERR_MSG: "wx interpolation in attributes unexpected intpn",
+              }),
+          },
         ]);
       });
       $.CONSUME(t.MUSTACHE_RIGHT_IN_QUOTE, {
