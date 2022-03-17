@@ -32,9 +32,9 @@ describe("Error Test Suite", () => {
     //                       ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
     const parseErrorMatchs = _.get(ast, 'errors') || [];
-    expect(parseErrorMatchs).to.be.lengthOf(1);
+    expect(parseErrorMatchs).to.be.lengthOf(2);
 
-    const parseError = parseErrorMatchs[0];
+    const parseError = parseErrorMatchs[1];
     expect(parseError).to.have.property("rawType");
     expect(parseError.rawType).to.be.equals("MismatchedTokenException");
   });

@@ -63,24 +63,27 @@ class Parser extends CstParser {
       $.OR([
         {
           ALT: () => {
-            $.CONSUME(t.CLOSE, {
+            $.CONSUME(t.WXS_CLOSE, {
               LABEL: "START_CLOSE",
               ERR_MSG: "wxs element missing close '>'",
             });
             $.OPTION(() => {
               $.SUBRULE($.wxscontent);
             });
-            $.CONSUME(t.SLASH_OPEN, {
-              ERR_MSG: "wxs element missing slash open '</'",
+            $.CONSUME(t.WXS_SLASH_CLOSE, {
+              ERR_MSG: "wxs element missing slash open '</wxs>'",
             });
-            $.CONSUME2(t.NAME, {
-              LABEL: "END_NAME",
-              ERR_MSG: "wxs element missing end tag name",
-            });
-            $.CONSUME2(t.CLOSE, {
-              LABEL: "END",
-              ERR_MSG: "wxs element missing end close '>'",
-            });
+            // $.CONSUME(t.SLASH_OPEN, {
+            //   ERR_MSG: "wxs element missing slash open '</'",
+            // });
+            // $.CONSUME2(t.NAME, {
+            //   LABEL: "END_NAME",
+            //   ERR_MSG: "wxs element missing end tag name",
+            // });
+            // $.CONSUME2(t.CLOSE, {
+            //   LABEL: "END",
+            //   ERR_MSG: "wxs element missing end close '>'",
+            // });
           },
         },
         {
@@ -268,7 +271,7 @@ class Parser extends CstParser {
         $.CONSUME(t.SEA_WS);
       });
       $.OPTION(() => {
-        $.CONSUME(t.WXS_TEXT);
+        $.CONSUME(t.INLINE_WXS_TEXT);
       });
     });
 

@@ -88,15 +88,19 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       mergeLocation(astNode.startTag, startTagLocation);
     }
 
-    if (ctx.SLASH_OPEN?.[0] && ctx.END?.[0]) {
+    if (ctx.WXS_SLASH_CLOSE?.[0]) {
       astNode.endTag = {
         type: "WXEndTag",
-        name: get(ctx, "END_NAME[0].image"),
+        name: "wxs",
       };
-      const endTagLocation = {
-        ...pick(ctx.SLASH_OPEN[0], ["startOffset", "startLine", "startColumn"]),
-        ...pick(ctx.END[0], ["endOffset", "endLine", "endColumn"]),
-      };
+      const endTagLocation = pick(ctx.WXS_SLASH_CLOSE[0], [
+        "startOffset",
+        "startLine",
+        "startColumn",
+        "endOffset",
+        "endLine",
+        "endColumn",
+      ]);
       mergeLocation(astNode.endTag, endTagLocation);
     }
 
@@ -119,8 +123,8 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     if (ctx.SEA_WS !== undefined) {
       allTokens = allTokens.concat(ctx.SEA_WS);
     }
-    if (ctx.WXS_TEXT !== undefined) {
-      allTokens = allTokens.concat(ctx.WXS_TEXT);
+    if (ctx.INLINE_WXS_TEXT !== undefined) {
+      allTokens = allTokens.concat(ctx.INLINE_WXS_TEXT);
     }
     const sortedTokens = sortBy(allTokens, ["startOffset"]);
     const fullText = map(sortedTokens, "image").join("");
@@ -156,7 +160,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
           .split("")
           .slice(1, raw.length - 1)
           .join(""),
-        rawValue: ctx.PURE_STRING[0].image,
+        raw: ctx.PURE_STRING[0].image,
         quote: raw?.length ? raw.slice(0, 1) : null,
       };
       mergeLocation(astNode, location);
@@ -212,15 +216,14 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       this.visit.bind(this)
     );
     const quote = "'";
-    let strASTs = map(ctx.PURE_STRING_IN_SINGLE_QUOTE, (item) =>
-      mergeLocation(
-        {
-          value: item.image,
-          type: "WXText",
-        },
-        item
-      )
-    );
+    let strASTs = map(ctx.PURE_STRING_IN_SINGLE_QUOTE, (item) => {
+      const astNode = {
+        value: item.image,
+        type: "WXText",
+      };
+      mergeLocation(astNode, item);
+      return astNode;
+    });
     const sortedValue = sortASTNode(interpolationASTS.concat(strASTs));
     const astNode = {
       type: "WXAttributeValue",

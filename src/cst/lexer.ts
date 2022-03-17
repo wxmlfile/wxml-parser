@@ -39,10 +39,16 @@ FRAGMENT(
 );
 FRAGMENT("Name", makePattern`${f.NameStartChar}(${f.NameChar})*`);
 
+// const WXS_START = createToken({
+//   name: "WXS_START",
+//   pattern: /<wxs/,
+//   push_mode: "INSIDE",
+// });
+
 const WXS_START = createToken({
   name: "WXS_START",
   pattern: /<wxs/,
-  push_mode: "INSIDE",
+  push_mode: "WXS_INSIDE",
 });
 
 const COMMENT = createToken({
@@ -85,12 +91,56 @@ const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|\{\{)).)+/ });
 
 const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|\}\})).)+/ });
 
+const WXS_REG = /([^]*?)(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>)/;
+
+const WXS_END = createToken({
+  name: "WXS_END",
+  pattern: /(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*))>/,
+  pop_mode: true,
+});
+const WXS_CLOSE = createToken({
+  name: "WXS_CLOSE",
+  pattern: /(?!<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*))>/,
+  push_mode: "WXS_CONTENT",
+  longer_alt: WXS_END,
+});
+const WXS_SLASH_CLOSE = createToken({
+  name: "WXS_SLASH_CLOSE",
+  pattern: /<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>/,
+  pop_mode: true,
+});
+// let callTimes = 0;
+
+// FIXME: chevrotain回调似乎有内存泄漏，随着调用次数增多，开销明显增大，不适合大型项目
+// function matchWXS(text, startOffset) {
+//   return WXS_REG.exec(text.substring(startOffset));
+//   const rest = text.substring(startOffset);
+//   const matched = rest.match(WXS_REG);
+//   if (!matched) return null;
+//   if (!matched[0]) return null;
+//   if (/<\/[a-zA-Z]+>/.test(matched[0])) return null;
+//   return [matched[0]];
+// }
+
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
   // ( |\t|\n|\r\n)*
   // allow these case </wxs    /> or </ wxs  />
-  pattern: /[^]+?(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>)/,
+  // pattern: { exec: matchWXS },
+  pattern: WXS_REG,
   line_breaks: true,
+  // start_chars_hint: ['\n'],
+});
+
+const INLINE_WXS_TEXT = createToken({
+  name: "INLINE_WXS_TEXT",
+  // ( |\t|\n|\r\n)*
+  // allow these case </wxs    /> or </ wxs  />
+  // pattern: { exec: matchWXS },
+  pattern: WXS_REG,
+  line_breaks: true,
+  pop_mode: true,
+  // start_chars_hint: ['\n'],
 });
 
 const CLOSE = createToken({ name: "CLOSE", pattern: />/, pop_mode: true });
@@ -144,17 +194,17 @@ const SPACE = createToken({
 
 const PURE_STRING = createToken({
   name: "PURE_STRING",
-  pattern: /"[^"^(\{\{)]*"|'[^'^(\{\{)]*'/,
+  pattern: /"[^"^\{\{]*"|'[^'^\{\{]*'/,
 });
 
 const PURE_STRING_IN_DOUBLE_QUOTE = createToken({
   name: "PURE_STRING_IN_DOUBLE_QUOTE",
-  pattern: /[^"^(\{\{)^(\}\})]+/,
+  pattern: /[^"^\{\{^\}\}]+/,
 });
 
 const PURE_STRING_IN_SINGLE_QUOTE = createToken({
   name: "PURE_STRING_IN_SINGLE_QUOTE",
-  pattern: /[^'^(\{\{)^(\}\})]+/,
+  pattern: /[^'^\{\{^\}\}]+/,
 });
 
 const DOUBLE_QUOTE_START = createToken({
@@ -186,14 +236,16 @@ const wxmlLexerDefinition = {
 
   modes: {
     OUTSIDE: [
+      // WXS_START,
       WXS_START,
+
       COMMENT,
       SEA_WS,
       SLASH_OPEN,
       OPEN,
-      WXS_TEXT,
       TEXT,
       MUSTACHE_LEFT,
+      WXS_TEXT,
     ],
     INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, SEA_WS, STRING],
     DOUBLE_QUOTE_STR_INSIDE: [
@@ -225,6 +277,25 @@ const wxmlLexerDefinition = {
       NAME,
       SPACE,
     ],
+    WXS_INSIDE: [
+      // Tokens from `OUTSIDE` to improve error recovery behavior
+      // COMMENT,
+      WXS_SLASH_CLOSE,
+      // INVALID_SLASH_OPEN,
+      // INVALID_OPEN_INSIDE,
+      // "Real" `INSIDE` tokens
+      WXS_CLOSE,
+      SLASH_CLOSE,
+      SLASH,
+      EQUALS,
+      PURE_STRING,
+      DOUBLE_QUOTE_START,
+      SINGLE_QUOTE_START,
+      NAME,
+      SPACE,
+      WXS_END,
+    ],
+    WXS_CONTENT: [INLINE_WXS_TEXT],
   },
 };
 

@@ -105,18 +105,18 @@ describe("Base Test Suite", () => {
     expect(matches[0].value).to.be.null;
     // main -- WXAttribute with double quote
     expect(matches[1].key).to.be.equals("main");
-    expect(matches[1].value).to.have.property("rawValue");
+    expect(matches[1].value).to.have.property("raw");
     expect(matches[1].value).to.have.property("value");
     expect(matches[1].value).to.have.property("quote");
-    expect(matches[1].value.rawValue).to.be.equals("\"zhuzhu\"");
+    expect(matches[1].value.raw).to.be.equals("\"zhuzhu\"");
     expect(matches[1].value.value).to.be.equals("zhuzhu");
     expect(matches[1].value.quote).to.be.equals("\"");
     // quote -- WXAttribute with single quote
     expect(matches[2].key).to.be.equals("quote");
-    expect(matches[2].value).to.have.property("rawValue");
+    expect(matches[2].value).to.have.property("raw");
     expect(matches[2].value).to.have.property("value");
     expect(matches[2].value).to.have.property("quote");
-    expect(matches[2].value.rawValue).to.be.equals("'single'");
+    expect(matches[2].value.raw).to.be.equals("'single'");
     expect(matches[2].value.value).to.be.equals("single");
     expect(matches[2].value.quote).to.be.equals("'");
   })
