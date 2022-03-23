@@ -64,7 +64,9 @@ describe("Error Test Suite", () => {
     expect(attr).to.have.property("key");
     expect(attr.key).to.be.equals("a");
     // all value relative val should be null
-    expect(attr.value).to.be.undefined;
+    expect(attr.quote).to.be.null;
+    expect(attr.value).to.be.null;
+    expect(attr.rawValue).to.be.null;
   });
 
   it("start tag missing name error", () => {
@@ -240,7 +242,7 @@ describe("Error Test Suite", () => {
     expect(_.get(elementMatchs, '[0].startTag.name')).to.be.equals("app");
     expect(_.get(elementMatchs, '[0].endTag.name')).to.be.equals("app");
     expect(_.get(attrMatchs, "[0].key")).to.equals("key");
-    expect(_.get(attrMatchs, "[0].value.value")).to.equals("value");
+    expect(_.get(attrMatchs, "[0].value")).to.equals("value");
 
     expect(_.get(ast, ))
   });

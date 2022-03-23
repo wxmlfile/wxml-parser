@@ -73,17 +73,6 @@ class Parser extends CstParser {
             $.CONSUME(t.WXS_SLASH_CLOSE, {
               ERR_MSG: "wxs element missing slash open '</wxs>'",
             });
-            // $.CONSUME(t.SLASH_OPEN, {
-            //   ERR_MSG: "wxs element missing slash open '</'",
-            // });
-            // $.CONSUME2(t.NAME, {
-            //   LABEL: "END_NAME",
-            //   ERR_MSG: "wxs element missing end tag name",
-            // });
-            // $.CONSUME2(t.CLOSE, {
-            //   LABEL: "END",
-            //   ERR_MSG: "wxs element missing end close '>'",
-            // });
           },
         },
         {

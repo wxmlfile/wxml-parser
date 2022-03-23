@@ -123,4 +123,25 @@ describe('WXS Test Suite', () => {
     expect(matchs[0].name).to.be.equals("wxs");
   });
 
+  it("WXSxript parse success when follow WXInterpolation", () => {
+    const ast = parse(`
+      <view>{{100}}</view>
+      <wxs> var s = 22; </wxs>
+    `)
+
+    expect(ast.errors.length).to.be.equals(0);
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs[0].name).to.be.equals("wxs");
+  });
+
+  it("WXSxript parse success when follow WXText", () => {
+    const ast = parse(`
+      <view>text</view>
+      <wxs> var s = 22; </wxs>
+    `)
+
+    expect(ast.errors.length).to.be.equals(0);
+    const matchs = esquery(ast, "WXScript");
+    expect(matchs[0].name).to.be.equals("wxs");
+  });
 })

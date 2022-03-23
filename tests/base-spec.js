@@ -105,21 +105,34 @@ describe("Base Test Suite", () => {
     expect(matches[0].value).to.be.null;
     // main -- WXAttribute with double quote
     expect(matches[1].key).to.be.equals("main");
-    expect(matches[1].value).to.have.property("raw");
-    expect(matches[1].value).to.have.property("value");
-    expect(matches[1].value).to.have.property("quote");
-    expect(matches[1].value.raw).to.be.equals("\"zhuzhu\"");
-    expect(matches[1].value.value).to.be.equals("zhuzhu");
-    expect(matches[1].value.quote).to.be.equals("\"");
+    expect(matches[1]).to.have.property("rawValue");
+    expect(matches[1]).to.have.property("value");
+    expect(matches[1]).to.have.property("quote");
+    expect(matches[1].rawValue).to.be.equals("\"zhuzhu\"");
+    expect(matches[1].value).to.be.equals("zhuzhu");
+    expect(matches[1].quote).to.be.equals("\"");
     // quote -- WXAttribute with single quote
     expect(matches[2].key).to.be.equals("quote");
-    expect(matches[2].value).to.have.property("raw");
-    expect(matches[2].value).to.have.property("value");
-    expect(matches[2].value).to.have.property("quote");
-    expect(matches[2].value.raw).to.be.equals("'single'");
-    expect(matches[2].value.value).to.be.equals("single");
-    expect(matches[2].value.quote).to.be.equals("'");
+    expect(matches[2]).to.have.property("rawValue");
+    expect(matches[2]).to.have.property("value");
+    expect(matches[2]).to.have.property("quote");
+    expect(matches[2].rawValue).to.be.equals("'single'");
+    expect(matches[2].value).to.be.equals("single");
+    expect(matches[2].quote).to.be.equals("'");
   })
+
+  it("can parse WXAttribute #2", () => {
+    const ast = parse(`
+      <popup class=" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2" />
+    `);
+    const matches = esquery(ast, "WXAttribute");
+    expect(matches).to.be.lengthOf(1);
+    expect(matches[0].key).to.be.equals("class");
+    expect(matches[0].value).to.be.equals(" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2");
+    expect(matches[0].rawValue).to.be.equals("\" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2\"");
+    const matches2 = esquery(ast, "WXAttributeInterpolation");
+    expect(matches2).to.be.lengthOf(2);
+  }),
 
   it("can parse WXComment", () => {
     const ast = parse(`
@@ -233,8 +246,8 @@ describe("Base Test Suite", () => {
     expect(matches).to.be.lengthOf(2);
     const attrMatches = esquery(ast, "WXAttribute");
     expect(attrMatches).to.be.lengthOf(2);
-    expect(attrMatches[0].value.value[0].rawValue).to.be.equals("{{ index < list.length }}");
-    expect(attrMatches[1].value.value[0].rawValue).to.be.equals("{{ index > list.length }}");
+    expect(attrMatches[0].value).to.be.equals("{{ index < list.length }}");
+    expect(attrMatches[1].value).to.be.equals("{{ index > list.length }}");
   })
 
   it("can parse WXAttribute interpolation #2", () => {
@@ -247,7 +260,7 @@ describe("Base Test Suite", () => {
     expect(matches).to.be.lengthOf(1);
     const attrMatches = esquery(ast, "WXAttribute");
     expect(attrMatches).to.be.lengthOf(1);
-    expect(attrMatches[0].value.value[0].rawValue).to.be.equals("{{ index > 5 ? '</ss>' : '<pp />' }}");
+    expect(attrMatches[0].value).to.be.equals("{{ index > 5 ? '</ss>' : '<pp />' }}");
   })
 
   it("support kebab-case WXElement name", () => {

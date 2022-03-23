@@ -4,4 +4,3 @@ dist
 .DS_store
 .idea
 src/vscodedebug/test.ts
-.vscode

@@ -142,7 +142,10 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     const astNode = {
       type: "WXAttribute",
       key: ctx.NAME[0].image,
-      value: attributeValue,
+      quote: null,
+      value: null,
+      rawValue: null,
+      ...(attributeValue || {}),
     };
     mergeLocation(astNode, location);
     return astNode;
@@ -155,12 +158,13 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     if (ctx.PURE_STRING !== undefined) {
       const raw = ctx.PURE_STRING[0].image;
       const astNode = {
-        type: "WXAttributeValue",
         value: raw
           .split("")
           .slice(1, raw.length - 1)
           .join(""),
-        raw: ctx.PURE_STRING[0].image,
+        rawValue: ctx.PURE_STRING[0].image,
+        children: [],
+        interpolations: [],
         quote: raw?.length ? raw.slice(0, 1) : null,
       };
       mergeLocation(astNode, location);
@@ -187,10 +191,19 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       return astNode;
     });
     const sortedValue = sortASTNode(interpolationASTS.concat(strASTs));
+    // @ts-expect-error
+    const value = sortedValue.map((v) => v.rawValue || v.value).join("");
+
     const astNode = {
-      type: "WXAttributeValue",
-      value: sortedValue,
-      interpolation: interpolationASTS,
+      value,
+      rawValue: quote + value + quote,
+      children: sortedValue,
+      interpolations: interpolationASTS.map((intp) => {
+        return {
+          ...intp,
+          type: "WXInterpolation",
+        };
+      }),
       quote: quote,
     };
     mergeLocation(astNode, location);
@@ -202,7 +215,7 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     // @ts-expect-error
     const value = (child || []).map((token) => token.image).join("");
     const astNode = {
-      type: "WXAttributeValInterpolation",
+      type: "WXAttributeInterpolation",
       rawValue: value,
       value: value.replace(/^{{/, "").replace(/}}$/, ""),
     };
@@ -225,10 +238,18 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       return astNode;
     });
     const sortedValue = sortASTNode(interpolationASTS.concat(strASTs));
+    // @ts-expect-error
+    const value = sortedValue.map((v) => v.rawValue || v.value).join("");
     const astNode = {
-      type: "WXAttributeValue",
-      value: sortedValue,
-      interpolation: interpolationASTS,
+      value,
+      rawValue: quote + value + quote,
+      children: sortedValue,
+      interpolations: interpolationASTS.map((intp) => {
+        return {
+          ...intp,
+          type: "WXInterpolation",
+        };
+      }),
       quote: quote,
     };
     mergeLocation(astNode, location);

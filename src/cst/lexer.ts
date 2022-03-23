@@ -39,12 +39,6 @@ FRAGMENT(
 );
 FRAGMENT("Name", makePattern`${f.NameStartChar}(${f.NameChar})*`);
 
-// const WXS_START = createToken({
-//   name: "WXS_START",
-//   pattern: /<wxs/,
-//   push_mode: "INSIDE",
-// });
-
 const WXS_START = createToken({
   name: "WXS_START",
   pattern: /<wxs/,
@@ -109,38 +103,18 @@ const WXS_SLASH_CLOSE = createToken({
   pattern: /<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>/,
   pop_mode: true,
 });
-// let callTimes = 0;
-
-// FIXME: chevrotain回调似乎有内存泄漏，随着调用次数增多，开销明显增大，不适合大型项目
-// function matchWXS(text, startOffset) {
-//   return WXS_REG.exec(text.substring(startOffset));
-//   const rest = text.substring(startOffset);
-//   const matched = rest.match(WXS_REG);
-//   if (!matched) return null;
-//   if (!matched[0]) return null;
-//   if (/<\/[a-zA-Z]+>/.test(matched[0])) return null;
-//   return [matched[0]];
-// }
 
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
-  // ( |\t|\n|\r\n)*
-  // allow these case </wxs    /> or </ wxs  />
-  // pattern: { exec: matchWXS },
   pattern: WXS_REG,
   line_breaks: true,
-  // start_chars_hint: ['\n'],
 });
 
 const INLINE_WXS_TEXT = createToken({
   name: "INLINE_WXS_TEXT",
-  // ( |\t|\n|\r\n)*
-  // allow these case </wxs    /> or </ wxs  />
-  // pattern: { exec: matchWXS },
   pattern: WXS_REG,
   line_breaks: true,
   pop_mode: true,
-  // start_chars_hint: ['\n'],
 });
 
 const CLOSE = createToken({ name: "CLOSE", pattern: />/, pop_mode: true });
@@ -236,9 +210,7 @@ const wxmlLexerDefinition = {
 
   modes: {
     OUTSIDE: [
-      // WXS_START,
       WXS_START,
-
       COMMENT,
       SEA_WS,
       SLASH_OPEN,
@@ -262,11 +234,9 @@ const wxmlLexerDefinition = {
     ],
     INTPN_IN_QUOTE: [MUSTACHE_RIGHT_IN_QUOTE, INTPN, STRING, SEA_WS],
     INSIDE: [
-      // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,
       INVALID_SLASH_OPEN,
       INVALID_OPEN_INSIDE,
-      // "Real" `INSIDE` tokens
       CLOSE,
       SLASH_CLOSE,
       SLASH,
@@ -278,12 +248,7 @@ const wxmlLexerDefinition = {
       SPACE,
     ],
     WXS_INSIDE: [
-      // Tokens from `OUTSIDE` to improve error recovery behavior
-      // COMMENT,
       WXS_SLASH_CLOSE,
-      // INVALID_SLASH_OPEN,
-      // INVALID_OPEN_INSIDE,
-      // "Real" `INSIDE` tokens
       WXS_CLOSE,
       SLASH_CLOSE,
       SLASH,

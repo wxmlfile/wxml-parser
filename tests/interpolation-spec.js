@@ -29,23 +29,61 @@ describe("Interpolation Test Suite", () => {
     expect(wxInterpolation.value).to.be.equals(" message ");
   })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #2 termplate attr
   // <view id="item-{{id}}"> </view>
+  it("can parse WXInterpolation - literal template", () => {
+    const ast = parse(`
+      <view id="item-{{id}}"> </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(1);
+    const intp = _.get(matches, '[0]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{id}}");
+    expect(intp.value).to.be.equals("id");
+    // raw WXAttribute is also exist
+    const matches2 = esquery(ast, "WXAttribute");
+    expect(matches2).to.be.lengthOf(1);
+    const wxAttr = matches2[0];
+    expect(wxAttr).to.have.property("value");
+    expect(wxAttr).to.have.property("rawValue");
+    expect(wxAttr.rawValue).to.be.equals("\"item-{{id}}\"");
+    expect(wxAttr.value).to.be.equals("item-{{id}}");
+  })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #3 condition 
   // <view wx:if="{{condition}}"> </view>
+  it("can parse WXInterpolation - condition", () => {
+    const ast = parse(`
+    <view wx:if="{{condition}}"> </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(1);
+    const intp = _.get(matches, '[0]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{condition}}");
+    expect(intp.value).to.be.equals("condition");
+  })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #4 keyword
   // <checkbox checked="{{false}}"> </checkbox>
+  it("can parse WXInterpolation - keyword", () => {
+    const ast = parse(`
+      <checkbox checked="{{false}}"> </checkbox>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(1);
+    const intp = _.get(matches, '[0]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{false}}");
+    expect(intp.value).to.be.equals("false");
+  })
 
   // #5 Ternary operation
   // <view hidden="{{flag ? true : false}}"> Hidden </view>
@@ -75,23 +113,22 @@ describe("Interpolation Test Suite", () => {
     expect(wxInterpolation.value).to.be.equals("a + b");
   })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #7 logic check
   // <view wx:if="{{length > 5}}"> </view>
   // <view wx:if="{{length < 5}}"> </view>
-  // it("can parse WXInterpolation - logic check", () => {
-  //   const ast = parse(`
-  //     <view wx:if="{{length < 5}}"> </view>
-  //   `);
-  //   expect(ast.errors).to.be.lengthOf(0);
-  //   const matches = esquery(ast, "WXInterpolation");
-  //   expect(matches).to.be.lengthOf(1);
-  //   const wxInterpolation = matches[0];
-  //   expect(wxInterpolation.rawValue).to.be.equals("{{length < 5}}");
-  //   expect(wxInterpolation.value).to.be.equals("length < 5");
-  // })
+  it("can parse WXInterpolation - logic check", () => {
+    const ast = parse(`
+      <view wx:if="{{length < 5}}"> </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(1);
+    const intp = _.get(matches, '[0]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{length < 5}}");
+    expect(intp.value).to.be.equals("length < 5");
+  })
 
   // #8 string compute
   // <view>{{"hello<></>}}{{}}{{" + name}}</view>
@@ -124,20 +161,47 @@ describe("Interpolation Test Suite", () => {
     expect(wxInterpolation2.value).to.be.equals("array[0]");
   })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #10 combine - array
   // <view wx:for="{{[zero, 1, 2, 3, 4]}}"> {{item}} </view>
+  it("can parse WXInterpolation - combine array", () => {
+    const ast = parse(`
+      <view wx:for="{{[zero, 1, 2, 3, 4]}}"> {{item}} </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(2);
+    const intp = _.get(matches, '[1]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{[zero, 1, 2, 3, 4]}}");
+    expect(intp.value).to.be.equals("[zero, 1, 2, 3, 4]");
+  })
 
-  /**
-   * @TODO not support parse WXInterpolation  in "" string yet
-   */
   // #11 combine - object
   // <template is="objectCombine" data="{{for: a, bar: b}}"></template>
   // <template is="objectCombine" data="{{foo, bar}}"></template>
   // <template is="objectCombine" data="{{...obj1, ...obj2, e: 5}}"></template>
-  // <view wx:for="{{[1,2,3]}} ">
+  it("can parse WXInterpolation - combine object", () => {
+    const ast = parse(`
+      <template is="objectCombine" data="  {{for: a, bar: b}}  "></template>
+      <template is="objectCombine" data="{{foo, bar}}"></template>
+      <template is="objectCombine" data="{{...obj1, ...obj2, e: 5}}"></template>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXAttribute");
+    expect(matches[1].interpolations).to.be.lengthOf(1);
+    const intp = _.get(matches, '[1].interpolations[0]');
+    const intp2 = _.get(matches, '[3].interpolations[0]');
+    const intp3 = _.get(matches, '[5].interpolations[0]');
+    expect(intp).to.have.property("value");
+    expect(intp).to.have.property("rawValue");
+    expect(intp.rawValue).to.be.equals("{{for: a, bar: b}}");
+    expect(intp.value).to.be.equals("for: a, bar: b");
+    expect(intp2.rawValue).to.be.equals("{{foo, bar}}");
+    expect(intp2.value).to.be.equals("foo, bar");
+    expect(intp3.rawValue).to.be.equals("{{...obj1, ...obj2, e: 5}}");
+    expect(intp3.value).to.be.equals("...obj1, ...obj2, e: 5");
+  })
 
   // #12 multi line
   it("can parse WXInterpolation - multi line", () => {
@@ -151,6 +215,20 @@ describe("Interpolation Test Suite", () => {
     expect(ast.errors).to.be.lengthOf(0);
     const matches = esquery(ast, "WXInterpolation");
     expect(matches).to.be.lengthOf(1);
+  })
+
+  // #12 WXAttributeInterpolation count
+  it("can parse WXAttributeInterpolation - count correct", () => {
+    const ast = parse(`
+      <view class="a-{{b}}" style="color: {{color}};">
+        {{i}}-{{j}}
+      </view>
+    `);
+    expect(ast.errors).to.be.lengthOf(0);
+    const matches = esquery(ast, "WXInterpolation");
+    expect(matches).to.be.lengthOf(4);
+    const matches2 = esquery(ast, "WXAttributeInterpolation");
+    expect(matches2).to.be.lengthOf(2);
   })
 
 });
