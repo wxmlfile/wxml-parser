@@ -6,11 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-03-24
+### Added
+- Add new ast type `WXAttributeInterpolation`
+- Support parse `WXInterpolation` in `WXAttribute`
+### Fixed
+- Fix `WXScript` parse error when follow `WXText` and `WXInterpolation`
+
 ## [0.3.2] - 2022-01-15
 ### Fixed
 - Add missing `name` property for `WXScript` node
 
 ## [0.3.1] - 2022-01-15
+- No changing
 
 ## [0.3.0] - 2021-11-15
 ### Fixed
