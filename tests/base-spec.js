@@ -121,6 +121,19 @@ describe("Base Test Suite", () => {
     expect(matches[2].quote).to.be.equals("'");
   })
 
+  it("can parse WXAttribute #2", () => {
+    const ast = parse(`
+      <popup class=" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2" />
+    `);
+    const matches = esquery(ast, "WXAttribute");
+    expect(matches).to.be.lengthOf(1);
+    expect(matches[0].key).to.be.equals("class");
+    expect(matches[0].value).to.be.equals(" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2");
+    expect(matches[0].rawValue).to.be.equals("\" {{isOdd ? 'odd' : 'even' }} num-{{idx}} show fixed 2\"");
+    const matches2 = esquery(ast, "WXAttributeInterpolation");
+    expect(matches2).to.be.lengthOf(2);
+  }),
+
   it("can parse WXComment", () => {
     const ast = parse(`
       <app></app>

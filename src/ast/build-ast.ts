@@ -8,6 +8,7 @@ import {
   convertLexerErrorToNode,
   convertParseErrorToNode,
   sortTokenChildren,
+  sortASTNode,
 } from "./util";
 
 type ICtx = Record<string, CstNode[]>;
@@ -87,15 +88,19 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
       mergeLocation(astNode.startTag, startTagLocation);
     }
 
-    if (ctx.SLASH_OPEN?.[0] && ctx.END?.[0]) {
+    if (ctx.WXS_SLASH_CLOSE?.[0]) {
       astNode.endTag = {
         type: "WXEndTag",
-        name: get(ctx, "END_NAME[0].image"),
+        name: "wxs",
       };
-      const endTagLocation = {
-        ...pick(ctx.SLASH_OPEN[0], ["startOffset", "startLine", "startColumn"]),
-        ...pick(ctx.END[0], ["endOffset", "endLine", "endColumn"]),
-      };
+      const endTagLocation = pick(ctx.WXS_SLASH_CLOSE[0], [
+        "startOffset",
+        "startLine",
+        "startColumn",
+        "endOffset",
+        "endLine",
+        "endColumn",
+      ]);
       mergeLocation(astNode.endTag, endTagLocation);
     }
 
@@ -118,8 +123,8 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
     if (ctx.SEA_WS !== undefined) {
       allTokens = allTokens.concat(ctx.SEA_WS);
     }
-    if (ctx.WXS_TEXT !== undefined) {
-      allTokens = allTokens.concat(ctx.WXS_TEXT);
+    if (ctx.INLINE_WXS_TEXT !== undefined) {
+      allTokens = allTokens.concat(ctx.INLINE_WXS_TEXT);
     }
     const sortedTokens = sortBy(allTokens, ["startOffset"]);
     const fullText = map(sortedTokens, "image").join("");
@@ -130,19 +135,122 @@ class CstToAstVisitor extends BaseWxmlCstVisitor {
    * AST - WXAttribute
    */
   attribute(ctx, { location }) {
-    const rawValue = get(ctx, "STRING[0].image") || null;
-    const value = rawValue
-      ? rawValue
-          .split("")
-          .slice(1, rawValue.length - 1)
-          .join("")
+    const attributeValue = ctx.attributeValue
+      ? this.visit(ctx.attributeValue[0])
       : null;
+
     const astNode = {
       type: "WXAttribute",
       key: ctx.NAME[0].image,
+      quote: null,
+      value: null,
+      rawValue: null,
+      ...(attributeValue || {}),
+    };
+    mergeLocation(astNode, location);
+    return astNode;
+  }
+
+  /**
+   * AST - WXAttributeValue
+   */
+  attributeValue(ctx, { location }) {
+    if (ctx.PURE_STRING !== undefined) {
+      const raw = ctx.PURE_STRING[0].image;
+      const astNode = {
+        value: raw
+          .split("")
+          .slice(1, raw.length - 1)
+          .join(""),
+        rawValue: ctx.PURE_STRING[0].image,
+        children: [],
+        interpolations: [],
+        quote: raw?.length ? raw.slice(0, 1) : null,
+      };
+      mergeLocation(astNode, location);
+      return astNode;
+    } else if (ctx.doubleQuoteAttributeVal !== undefined) {
+      return this.visit(ctx.doubleQuoteAttributeVal[0]);
+    } else if (ctx.singleQuoteAttributeVal !== undefined) {
+      return this.visit(ctx.singleQuoteAttributeVal[0]);
+    }
+  }
+
+  doubleQuoteAttributeVal(ctx, { location }) {
+    const interpolationASTS = map(
+      ctx.attributeValInterpolation,
+      this.visit.bind(this)
+    );
+    const quote = '"';
+    let strASTs = map(ctx.PURE_STRING_IN_DOUBLE_QUOTE, (item) => {
+      const astNode = {
+        value: item.image,
+        type: "WXText",
+      };
+      mergeLocation(astNode, item);
+      return astNode;
+    });
+    const sortedValue = sortASTNode(interpolationASTS.concat(strASTs));
+    // @ts-expect-error
+    const value = sortedValue.map((v) => v.rawValue || v.value).join("");
+
+    const astNode = {
       value,
-      rawValue,
-      quote: rawValue?.length ? rawValue.slice(0, 1) : null,
+      rawValue: quote + value + quote,
+      children: sortedValue,
+      interpolations: interpolationASTS.map((intp) => {
+        return {
+          ...intp,
+          type: "WXInterpolation",
+        };
+      }),
+      quote: quote,
+    };
+    mergeLocation(astNode, location);
+    return astNode;
+  }
+
+  attributeValInterpolation(ctx, { location }) {
+    const child = sortTokenChildren(ctx);
+    // @ts-expect-error
+    const value = (child || []).map((token) => token.image).join("");
+    const astNode = {
+      type: "WXAttributeInterpolation",
+      rawValue: value,
+      value: value.replace(/^{{/, "").replace(/}}$/, ""),
+    };
+    mergeLocation(astNode, location);
+    return astNode;
+  }
+
+  singleQuoteAttributeVal(ctx, { location }) {
+    const interpolationASTS = map(
+      ctx.attributeValInterpolation,
+      this.visit.bind(this)
+    );
+    const quote = "'";
+    let strASTs = map(ctx.PURE_STRING_IN_SINGLE_QUOTE, (item) => {
+      const astNode = {
+        value: item.image,
+        type: "WXText",
+      };
+      mergeLocation(astNode, item);
+      return astNode;
+    });
+    const sortedValue = sortASTNode(interpolationASTS.concat(strASTs));
+    // @ts-expect-error
+    const value = sortedValue.map((v) => v.rawValue || v.value).join("");
+    const astNode = {
+      value,
+      rawValue: quote + value + quote,
+      children: sortedValue,
+      interpolations: interpolationASTS.map((intp) => {
+        return {
+          ...intp,
+          type: "WXInterpolation",
+        };
+      }),
+      quote: quote,
     };
     mergeLocation(astNode, location);
     return astNode;

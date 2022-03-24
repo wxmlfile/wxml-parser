@@ -13,6 +13,10 @@ class Parser extends CstParser {
   content: IRule;
   wxscontent: IRule;
   interpolation: IRule;
+  attributeValue: IRule;
+  doubleQuoteAttributeVal: IRule;
+  singleQuoteAttributeVal: IRule;
+  attributeValInterpolation: IRule;
 
   constructor() {
     super(t, {
@@ -59,23 +63,15 @@ class Parser extends CstParser {
       $.OR([
         {
           ALT: () => {
-            $.CONSUME(t.CLOSE, {
+            $.CONSUME(t.WXS_CLOSE, {
               LABEL: "START_CLOSE",
               ERR_MSG: "wxs element missing close '>'",
             });
             $.OPTION(() => {
               $.SUBRULE($.wxscontent);
             });
-            $.CONSUME(t.SLASH_OPEN, {
-              ERR_MSG: "wxs element missing slash open '</'",
-            });
-            $.CONSUME2(t.NAME, {
-              LABEL: "END_NAME",
-              ERR_MSG: "wxs element missing end tag name",
-            });
-            $.CONSUME2(t.CLOSE, {
-              LABEL: "END",
-              ERR_MSG: "wxs element missing end close '>'",
+            $.CONSUME(t.WXS_SLASH_CLOSE, {
+              ERR_MSG: "wxs element missing slash open '</wxs>'",
             });
           },
         },
@@ -153,10 +149,102 @@ class Parser extends CstParser {
           {
             ALT: () => {
               $.CONSUME(t.EQUALS);
-              $.CONSUME(t.STRING, { ERR_MSG: "wx attributes missing value" });
+              $.SUBRULE($.attributeValue);
             },
           },
         ]);
+      });
+    });
+
+    $.RULE("attributeValue", () => {
+      $.OR([
+        {
+          ALT: () =>
+            $.CONSUME(t.PURE_STRING, {
+              ERR_MSG: "wx attributes missing value",
+            }),
+        },
+        {
+          ALT: () => $.SUBRULE($.doubleQuoteAttributeVal),
+        },
+        {
+          ALT: () => $.SUBRULE($.singleQuoteAttributeVal),
+        },
+      ]);
+    });
+
+    $.RULE("doubleQuoteAttributeVal", () => {
+      $.CONSUME(t.DOUBLE_QUOTE_START, {
+        ERR_MSG: "wx attributes unexpected start",
+      });
+      $.MANY(() => {
+        $.OR([
+          {
+            ALT: () =>
+              $.CONSUME(t.PURE_STRING_IN_DOUBLE_QUOTE, {
+                ERR_MSG: "wx attributes missing value",
+              }),
+          },
+          {
+            ALT: () => $.SUBRULE($.attributeValInterpolation),
+          },
+        ]);
+      });
+      $.CONSUME(t.DOUBLE_QUOTE_END, {
+        ERR_MSG: "wx attribute value unexpected end",
+      });
+    });
+
+    $.RULE("singleQuoteAttributeVal", () => {
+      $.CONSUME(t.SINGLE_QUOTE_START, {
+        ERR_MSG: "wx attributes unexpected start",
+      });
+      $.MANY(() => {
+        $.OR([
+          {
+            ALT: () =>
+              $.CONSUME(t.PURE_STRING_IN_SINGLE_QUOTE, {
+                ERR_MSG: "wx attributes missing value",
+              }),
+          },
+          {
+            ALT: () => $.SUBRULE($.attributeValInterpolation),
+          },
+        ]);
+      });
+      $.CONSUME(t.SINGLE_QUOTE_END, {
+        ERR_MSG: "wx attribute value unexpected end",
+      });
+    });
+
+    $.RULE("attributeValInterpolation", () => {
+      $.CONSUME(t.MUSTACHE_LEFT_IN_QUOTE, {
+        ERR_MSG: "wx interpolation in attributes value unexpected start",
+      });
+      $.MANY(() => {
+        $.OR([
+          {
+            ALT: () =>
+              $.CONSUME(t.INTPN, {
+                ERR_MSG: "wx interpolation in attributes unexpected intpn",
+              }),
+          },
+          {
+            ALT: () =>
+              $.CONSUME(t.STRING, {
+                ERR_MSG: "wx interpolation in attributes unexpected string",
+              }),
+          },
+          {
+            ALT: () =>
+              $.CONSUME(t.SEA_WS, {
+                ERR_MSG: "wx interpolation in attributes unexpected intpn",
+              }),
+          },
+        ]);
+      });
+      $.CONSUME(t.MUSTACHE_RIGHT_IN_QUOTE, {
+        ERR_MSG: "wx interpolation in attribute value unexpected end",
       });
     });
 
@@ -172,7 +260,7 @@ class Parser extends CstParser {
         $.CONSUME(t.SEA_WS);
       });
       $.OPTION(() => {
-        $.CONSUME(t.WXS_TEXT);
+        $.CONSUME(t.INLINE_WXS_TEXT);
       });
     });
 

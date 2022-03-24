@@ -21,12 +21,10 @@ function makePattern(strings, ...args) {
   return new RegExp(combined);
 }
 
-const tokensArray = [];
 export const tokensDictionary = {} as Record<string, TokenType>;
 
 function createToken(options) {
   const newTokenType = createTokenOrg(options);
-  tokensArray.push(newTokenType);
   tokensDictionary[options.name] = newTokenType;
   return newTokenType;
 }
@@ -44,7 +42,7 @@ FRAGMENT("Name", makePattern`${f.NameStartChar}(${f.NameChar})*`);
 const WXS_START = createToken({
   name: "WXS_START",
   pattern: /<wxs/,
-  push_mode: "INSIDE",
+  push_mode: "WXS_INSIDE",
 });
 
 const COMMENT = createToken({
@@ -83,16 +81,40 @@ const INVALID_OPEN_INSIDE = createToken({
   categories: [OPEN],
 });
 
-const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|{{)).)+/ });
+const TEXT = createToken({ name: "TEXT", pattern: /((?!(<|\{\{)).)+/ });
 
-const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|}})).)+/ });
+const INTPN = createToken({ name: "INTPN", pattern: /((?!('|"|\}\})).)+/ });
+
+const WXS_REG = /([^]*?)(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>)/;
+
+const WXS_END = createToken({
+  name: "WXS_END",
+  pattern: /(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*))>/,
+  pop_mode: true,
+});
+const WXS_CLOSE = createToken({
+  name: "WXS_CLOSE",
+  pattern: /(?!<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*))>/,
+  push_mode: "WXS_CONTENT",
+  longer_alt: WXS_END,
+});
+const WXS_SLASH_CLOSE = createToken({
+  name: "WXS_SLASH_CLOSE",
+  pattern: /<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>/,
+  pop_mode: true,
+});
 
 const WXS_TEXT = createToken({
   name: "WXS_TEXT",
-  // ( |\t|\n|\r\n)*
-  // allow these case </wxs    /> or </ wxs  />
-  pattern: /[^]+?(?=<\/(( |\t|\n|\r\n)*)wxs(( |\t|\n|\r\n)*)>)/,
+  pattern: WXS_REG,
   line_breaks: true,
+});
+
+const INLINE_WXS_TEXT = createToken({
+  name: "INLINE_WXS_TEXT",
+  pattern: WXS_REG,
+  line_breaks: true,
+  pop_mode: true,
 });
 
 const CLOSE = createToken({ name: "CLOSE", pattern: />/, pop_mode: true });
@@ -116,8 +138,20 @@ const MUSTACHE_LEFT = createToken({
   push_mode: "INTPN_INSIDE",
 });
 
+const MUSTACHE_LEFT_IN_QUOTE = createToken({
+  name: "MUSTACHE_LEFT_IN_QUOTE",
+  pattern: /\{\{/,
+  push_mode: "INTPN_IN_QUOTE",
+});
+
 const MUSTACHE_RIGHT = createToken({
   name: "MUSTACHE_RIGHT",
+  pattern: /\}\}/,
+  pop_mode: true,
+});
+
+const MUSTACHE_RIGHT_IN_QUOTE = createToken({
+  name: "MUSTACHE_RIGHT_IN_QUOTE",
   pattern: /\}\}/,
   pop_mode: true,
 });
@@ -132,6 +166,45 @@ const SPACE = createToken({
   group: Lexer.SKIPPED,
 });
 
+const PURE_STRING = createToken({
+  name: "PURE_STRING",
+  pattern: /"[^"^\{\{]*"|'[^'^\{\{]*'/,
+});
+
+const PURE_STRING_IN_DOUBLE_QUOTE = createToken({
+  name: "PURE_STRING_IN_DOUBLE_QUOTE",
+  pattern: /[^"^\{\{^\}\}]+/,
+});
+
+const PURE_STRING_IN_SINGLE_QUOTE = createToken({
+  name: "PURE_STRING_IN_SINGLE_QUOTE",
+  pattern: /[^'^\{\{^\}\}]+/,
+});
+
+const DOUBLE_QUOTE_START = createToken({
+  name: "DOUBLE_QUOTE_START",
+  pattern: /"/,
+  push_mode: "DOUBLE_QUOTE_STR_INSIDE",
+});
+
+const DOUBLE_QUOTE_END = createToken({
+  name: "DOUBLE_QUOTE_END",
+  pattern: /"/,
+  pop_mode: true,
+});
+
+const SINGLE_QUOTE_START = createToken({
+  name: "SINGLE_QUOTE_START",
+  pattern: /'/,
+  push_mode: "SINGLE_QUOTE_STR_INSIDE",
+});
+
+const SINGLE_QUOTE_END = createToken({
+  name: "SINGLE_QUOTE_END",
+  pattern: /'/,
+  pop_mode: true,
+});
+
 const wxmlLexerDefinition = {
   defaultMode: "OUTSIDE",
 
@@ -142,25 +215,52 @@ const wxmlLexerDefinition = {
       SEA_WS,
       SLASH_OPEN,
       OPEN,
-      WXS_TEXT,
       TEXT,
       MUSTACHE_LEFT,
+      WXS_TEXT,
     ],
     INTPN_INSIDE: [MUSTACHE_RIGHT, INTPN, SEA_WS, STRING],
+    DOUBLE_QUOTE_STR_INSIDE: [
+      DOUBLE_QUOTE_END,
+      MUSTACHE_LEFT_IN_QUOTE,
+      PURE_STRING_IN_DOUBLE_QUOTE,
+      SEA_WS,
+    ],
+    SINGLE_QUOTE_STR_INSIDE: [
+      SINGLE_QUOTE_END,
+      MUSTACHE_LEFT_IN_QUOTE,
+      PURE_STRING_IN_SINGLE_QUOTE,
+      SEA_WS,
+    ],
+    INTPN_IN_QUOTE: [MUSTACHE_RIGHT_IN_QUOTE, INTPN, STRING, SEA_WS],
     INSIDE: [
-      // Tokens from `OUTSIDE` to improve error recovery behavior
       COMMENT,
       INVALID_SLASH_OPEN,
       INVALID_OPEN_INSIDE,
-      // "Real" `INSIDE` tokens
       CLOSE,
       SLASH_CLOSE,
       SLASH,
       EQUALS,
-      STRING,
+      PURE_STRING,
+      DOUBLE_QUOTE_START,
+      SINGLE_QUOTE_START,
       NAME,
       SPACE,
     ],
+    WXS_INSIDE: [
+      WXS_SLASH_CLOSE,
+      WXS_CLOSE,
+      SLASH_CLOSE,
+      SLASH,
+      EQUALS,
+      PURE_STRING,
+      DOUBLE_QUOTE_START,
+      SINGLE_QUOTE_START,
+      NAME,
+      SPACE,
+      WXS_END,
+    ],
+    WXS_CONTENT: [INLINE_WXS_TEXT],
   },
 };
 

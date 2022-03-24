@@ -32,9 +32,9 @@ describe("Error Test Suite", () => {
     //                       ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
     const parseErrorMatchs = _.get(ast, 'errors') || [];
-    expect(parseErrorMatchs).to.be.lengthOf(1);
+    expect(parseErrorMatchs).to.be.lengthOf(2);
 
-    const parseError = parseErrorMatchs[0];
+    const parseError = parseErrorMatchs[1];
     expect(parseError).to.have.property("rawType");
     expect(parseError.rawType).to.be.equals("MismatchedTokenException");
   });
@@ -53,9 +53,9 @@ describe("Error Test Suite", () => {
 
     const parseError = parseErrorMatchs[0];
     expect(parseError).to.have.property("rawType");
-    expect(parseError.rawType).to.be.equals("MismatchedTokenException");
+    expect(parseError.rawType).to.be.equals("NoViableAltException");
     expect(parseError).to.have.property("value");
-    expect(parseError.value).to.be.equals("wx attributes missing value");
+    expect(parseError.value).to.be.equals('Expecting: one of these possible Token sequences:\n  1. [PURE_STRING]\n  2. [DOUBLE_QUOTE_START]\n  3. [SINGLE_QUOTE_START]\nbut found: \'>\'' );
 
     // check WXAttribute
     const attrsMatchs = esquery(ast, "WXAttribute")
