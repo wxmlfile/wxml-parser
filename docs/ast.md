@@ -38,7 +38,7 @@ interface Position {
 
 ### WXNode
 ```ts
-type WXNode = WXScript | WXElement | | WXComment | WXText;
+type WXNode = WXScript | WXElement | WXComment | WXText;
 ```
 
 ## Real Type

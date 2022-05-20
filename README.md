@@ -20,6 +20,9 @@ $ yarn add @wxml/parser --dev
 $ cnpm install @wxml/parser --save-dev
 ```
 
+### AST docs
+Wanna try high level usage, check our [`AST` docs](https://github.com/wxmlfile/wxml-parser/blob/main/docs/ast.md) first !
+
 ## Basic Usage
 
 ```javascript
