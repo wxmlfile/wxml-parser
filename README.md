@@ -1,7 +1,6 @@
 ## @wxml/parser
 
 [![npm version](https://img.shields.io/npm/v/@wxml/parser)](https://www.npmjs.com/package/@wxml/parser)
-[![cnpm version](https://cnpmjs.org/badge/v/@wxml/parser.svg)](https://cnpmjs.org/package/@wxml/parser)
 [![CI Status](https://github.com/wxmlfile/wxml-parser/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wxmlfile/wxml-parser/actions/workflows/ci.yml?query=branch%3Amain)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/wxmlfile/wxml-parser/pulls)
@@ -14,14 +13,21 @@ A fast and tolerant wxml parser
 ```bash
 ## npm
 $ npm install @wxml/parser --save-dev
+## pnpm
+$ pnpm add -D @wxml/parser
 ## yarn
 $ yarn add @wxml/parser --dev
 ## cnpm (for china user)
 $ cnpm install @wxml/parser --save-dev
 ```
 
-### AST docs
+## AST docs
 Wanna try high level usage, check our [`AST` docs](https://github.com/wxmlfile/wxml-parser/blob/main/docs/ast.md) first !
+
+## AST explorer
+<a href="https://wxmlfile.github.io/explorer">
+  <img src="https://raw.githubusercontent.com/wxmlfile/explorer/main/assets/wxml-explorer.png">
+</a>
 
 ## Basic Usage
 
