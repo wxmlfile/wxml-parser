@@ -2,10 +2,6 @@
 
 **What**:
 
-<!-- Why are these changes necessary? -->
-
-**Why**:
-
 <!-- How were these changes implemented? -->
 
 **How**:
