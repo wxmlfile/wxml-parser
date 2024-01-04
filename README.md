@@ -4,7 +4,7 @@
 [![CI Status](https://github.com/wxmlfile/wxml-parser/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wxmlfile/wxml-parser/actions/workflows/ci.yml?query=branch%3Amain)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/wxmlfile/wxml-parser/pulls)
-[![Twitter Follow Author](https://img.shields.io/twitter/follow/s_chenlei)](https://twitter.com/s_chenlei)
+[![Twitter Follow Author](https://img.shields.io/twitter/follow/s_chenlei)](https://twitter.com/chenleidev)
 
 A fast and tolerant wxml parser
 
