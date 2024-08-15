@@ -29,6 +29,11 @@ Wanna try high level usage, check our [`AST` docs](https://github.com/wxmlfile/w
   <img src="https://raw.githubusercontent.com/wxmlfile/explorer/main/assets/wxml-explorer.png">
 </a>
 
+## AST explorer (sxzz/ast-explorer)
+<a href="https://ast.sxzz.moe/#eNqrVspRslIqr8jNUdJRKoAydQsSi4pTi4AiyUARIJUPpKprlWoBRA8NdQ==">
+  <img src="https://private-user-images.githubusercontent.com/14012511/358136614-33dabd73-1cf2-40f2-b43f-1eae914a9eb1.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjM3MDI1NzYsIm5iZiI6MTcyMzcwMjI3NiwicGF0aCI6Ii8xNDAxMjUxMS8zNTgxMzY2MTQtMzNkYWJkNzMtMWNmMi00MGYyLWI0M2YtMWVhZTkxNGE5ZWIxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA4MTUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwODE1VDA2MTExNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTc2NzVjMzc2MDY1ZjUwMWFjZTRiYTg1MGE1OGYyNmRmOWNlNzQ3YjVjMTU4ZDU0YTc3ZmI0OTIxNmRhOGZkYmEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.OMx8g_UVWeUEH18fVvEFNP4_dGAR7z-uYK14f-rz2AI">
+</a>
+
 ## Basic Usage
 
 ```javascript
