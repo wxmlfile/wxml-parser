@@ -98,7 +98,7 @@ export function sortCstChildren(ctx: Record<string, CstNode[]>): CstNode[] {
 export function mergeLocation(astNode, location: CstNodeLocation): void {
   Object.assign(astNode, {
     start: location.startOffset,
-    end: location.endOffset,
+    end: location.endOffset + 1,
     loc: {
       start: {
         line: location.startLine,
@@ -109,7 +109,7 @@ export function mergeLocation(astNode, location: CstNodeLocation): void {
         column: location.endColumn,
       },
     },
-    range: [location.startOffset, location.endOffset],
+    range: [location.startOffset, location.endOffset + 1],
   });
 }
 
